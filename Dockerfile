@@ -1,3 +1,5 @@
+test 1
+
 FROM ubuntu:18.04
 
 # Install build dependencies
