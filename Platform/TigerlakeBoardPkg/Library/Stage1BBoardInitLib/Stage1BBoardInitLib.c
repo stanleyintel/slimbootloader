@@ -467,14 +467,14 @@ UpdateFspConfig (
   Fspmcfg->DdiPort1Hpd = SaDisplayConfigTable[5];
   Fspmcfg->DdiPort2Hpd = SaDisplayConfigTable[6];
   Fspmcfg->DdiPort3Hpd = SaDisplayConfigTable[7];
-  Fspmcfg->DdiPort4Hpd = SaDisplayConfigTable[8];
+  Fspmcfg->DdiPort4Hpd = 1;
   Fspmcfg->DdiPortADdc = SaDisplayConfigTable[9];
   Fspmcfg->DdiPortBDdc = SaDisplayConfigTable[10];
   Fspmcfg->DdiPortCDdc = SaDisplayConfigTable[11];
   Fspmcfg->DdiPort1Ddc = SaDisplayConfigTable[12];
   Fspmcfg->DdiPort2Ddc = SaDisplayConfigTable[13];
   Fspmcfg->DdiPort3Ddc = SaDisplayConfigTable[14];
-  Fspmcfg->DdiPort4Ddc = SaDisplayConfigTable[15];
+  Fspmcfg->DdiPort4Ddc = 1;
 
   if (PlatformData->PlatformFeatures.VtdEnable == 1) {
     Fspmcfg->VtdIgdEnable = 1;
