@@ -33,6 +33,7 @@ SerialIoPostMemConfig (
   } else if (S0IX_STATUS() == 1) {  // legacy UART
     FspsConfig->SerialIoUartMode[2] = 1;  // Force UART to PCI mode to enable OS to have full control
   }
+  FspsConfig->SerialIoUartMode[1] = 1;
 
   // Two instants of UART0 in TGL PCH: GPP_C8 to GPP_C11 and GPP_F0 to GPP_F3, while the second
   // instant can be used by CNVI.
