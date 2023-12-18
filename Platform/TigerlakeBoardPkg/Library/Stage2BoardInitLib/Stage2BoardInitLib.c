@@ -1620,6 +1620,8 @@ UpdateFspConfig (
     }
   }
 
+  FspsConfig->TccActivationOffset = 0xb;
+
   if (FeaturePcdGet (PcdEnablePciePm)) {
     StoreRpConfig (FspsConfig);
   }
