@@ -844,6 +844,12 @@ BoardInit (
     Status = PcdSet32S (PcdAcpiTableTemplatePtr, (UINT32)(UINTN)mPlatformAcpiTables);
     break;
   case PostSiliconInit:
+    UINT32 val1, val2;
+    val1 = AsmReadMsr32 (MSR_TEMPERATURE_TARGET);
+    AsmWriteMsr32 (MSR_TEMPERATURE_TARGET, 0x640000);
+    val2 = AsmReadMsr32 (MSR_TEMPERATURE_TARGET);
+    DEBUG((DEBUG_INFO, "demo for msr read/write: before=0x%08x after=0x%08x\n", val1, val2));
+
     if (IsWdtFlagsSet(WDT_FLAG_TCC_DSO_IN_PROGRESS)) {
       WdtDisable (WDT_FLAG_TCC_DSO_IN_PROGRESS);
     }
