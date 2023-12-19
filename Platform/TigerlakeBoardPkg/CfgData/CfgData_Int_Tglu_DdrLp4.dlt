@@ -27,6 +27,27 @@ MEMORY_CFG_DATA.SpdDataSel130                               | 1
 
 SILICON_CFG_DATA.PortUsb20Enable.Usb2Port1                  | 0
 
+# HPD1
+GPIO_CFG_DATA.GpioPinConfig1_GPP_A19.GPIOSkip_GPP_A19 | 1
+# HPD2
+GPIO_CFG_DATA.GpioPinConfig1_GPP_A20.GPIOSkip_GPP_A20 | 1
+# HPD3
+GPIO_CFG_DATA.GpioPinConfig1_GPP_A14.GPIOSkip_GPP_A14 | 1
+# HPD4
+GPIO_CFG_DATA.GpioPinConfig1_GPP_A15.GPIOSkip_GPP_A15 | 1
+
+# DDP1
+GPIO_CFG_DATA.GpioPinConfig1_GPP_E18.GPIOSkip_GPP_E18 | 1
+GPIO_CFG_DATA.GpioPinConfig1_GPP_E19.GPIOSkip_GPP_E19 | 1
+# DDP2
+GPIO_CFG_DATA.GpioPinConfig1_GPP_E20.GPIOSkip_GPP_E20 | 1
+GPIO_CFG_DATA.GpioPinConfig1_GPP_E21.GPIOSkip_GPP_E21 | 1
+# DDP3
+GPIO_CFG_DATA.GpioPinConfig1_GPP_D09.GPIOSkip_GPP_D09 | 1
+GPIO_CFG_DATA.GpioPinConfig1_GPP_D10.GPIOSkip_GPP_D10 | 1
+# DDP4
+GPIO_CFG_DATA.GpioPinConfig1_GPP_D11.GPIOSkip_GPP_D11 | 1
+GPIO_CFG_DATA.GpioPinConfig1_GPP_D12.GPIOSkip_GPP_D12 | 1
 
 #
 # By default use Osloader Payload, set to "UEFI" to select UEFI payload.
