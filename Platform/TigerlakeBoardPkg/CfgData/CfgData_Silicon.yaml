@@ -83,7 +83,7 @@
       help         : >
                      Enable or Disable Intel SpeedStep Technology. 0- Disable; <b>1- Enable</b>
       length       : 0x01
-      value        : 0x1
+      value        : 0x0
   - Hwp          :
       name         : Enable or Disable HWP
       type         : Combo
@@ -91,7 +91,7 @@
       help         : >
                      Enable or Disable HWP(Hardware P states) Support. 0- Disable; <b>1- Enable;</b> 2-3:Reserved
       length       : 0x01
-      value        : 0x01
+      value        : 0x00
   - Cx           :
       name         : Enable or Disable CPU power states (C-states)
       type         : Combo
@@ -100,7 +100,7 @@
       help         : >
                      Enable or Disable CPU power states (C-states). 0- Disable; <b>1- Enable</b>
       length       : 0x01
-      value        : 0x01
+      value        : 0x00
   - EnableItbm   :
       name         : Intel Turbo Boost Max Technology 3.0
       type         : Combo

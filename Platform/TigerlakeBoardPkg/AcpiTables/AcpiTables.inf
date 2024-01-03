@@ -53,8 +53,8 @@
   CpuSsdt/ApPsd.asl
   CpuSsdt/CpuSsdt.asl
   CpuSsdt/Ctdp.asl
-  CpuSsdt/Cpu0Hwp.asl
-  CpuSsdt/ApHwp.asl
+  # CpuSsdt/Cpu0Hwp.asl
+  # CpuSsdt/ApHwp.asl
   Platform/CommonBoardPkg/AcpiTables/Fpdt/Fpdt.aslc
   Platform/CommonBoardPkg/AcpiTables/Tpm/Tpm2.aslc
   Platform/CommonBoardPkg/AcpiTables/Tpm/TpmSsdt.asl
