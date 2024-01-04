@@ -369,6 +369,7 @@ UpdateFspConfig (
   // Cpu Pcie
   Fspmcfg->CpuPcieRpEnableMask           = MemCfgData->CpuPcieRpEnableMask;
   CopyMem (Fspmcfg->CpuPcieRpPcieSpeed, MemCfgData->CpuPcieRpPcieSpeed, sizeof(MemCfgData->CpuPcieRpPcieSpeed));
+  Fspmcfg->CpuPcieRpSlotImplemented[1] = 0; // built-in mode (non-slot)
   Fspmcfg->CpuPcieRpClockReqMsgEnable[0] = MemCfgData->CpuPcieRpClockReqMsgEnable[0];
   Fspmcfg->CpuPcieRpClockReqMsgEnable[1] = MemCfgData->CpuPcieRpClockReqMsgEnable[1];
   Fspmcfg->CpuPcieRpClockReqMsgEnable[2] = MemCfgData->CpuPcieRpClockReqMsgEnable[2];
