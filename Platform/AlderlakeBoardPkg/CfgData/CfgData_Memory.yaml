@@ -933,7 +933,7 @@
       help         : >
                      Determine if to enable DCI debug from host
       length       : 0x01
-      value        : 0x1
+      value        : 0x0
   - SkipExtGfxScan :
         name         : Skip external display device scanning
         type         : Combo

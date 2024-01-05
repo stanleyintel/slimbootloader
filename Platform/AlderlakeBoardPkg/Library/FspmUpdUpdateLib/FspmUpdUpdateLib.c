@@ -629,7 +629,7 @@ UpdateFspConfig (
         Fspmcfg->DdiPortBHpd = 0x1;
         Fspmcfg->PrmrrSize = 0x200000;
         Fspmcfg->PcieClkReqGpioMux[9] = 0x796e9000;
-        Fspmcfg->TcssXdciEn = 0x1;
+        Fspmcfg->TcssXdciEn = 0x0;
         Fspmcfg->Ddr4OneDpc = 0x3;
         Fspmcfg->DmiHweq = 0x2;
         Fspmcfg->FirstDimmBitMaskEcc = 0x0;
