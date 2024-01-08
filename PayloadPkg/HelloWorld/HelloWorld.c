@@ -7,6 +7,24 @@
 
 #include "HelloWorld.h"
 
+
+#pragma GCC push_options
+#pragma GCC optimize ("O0")
+VOID doit() {
+  UINT32 var;
+  UINT32 src = 0xdeadbeef;
+
+  asm volatile ("push %%eax\n\t"
+                "mov %1, %%eax\n\t"
+                "mov %%eax, %0\n\t"
+                "pop %%eax\n\t"
+                : "=r" (var)
+                : "r" (src)
+                : "eax", "ebx", "ecx", "edx");
+
+  DEBUG ((DEBUG_INIT, "@@@@ test 0 : just a test: eax0: %08x\n", var));
+}
+
 /**
   Payload main entry.
 
@@ -24,6 +42,7 @@ PayloadMain (
   UINT8      Key;
 
   DEBUG ((DEBUG_INFO, "\n\n==================== Hello World ====================\n\n"));
+  doit();
 
   Key = 0;
   while (Key != 0x1B) {
