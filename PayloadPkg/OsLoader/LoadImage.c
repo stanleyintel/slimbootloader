@@ -893,9 +893,9 @@ LoadBootImages (
     if (EFI_ERROR (Status)) {
       if (Index >= LoadImageTypeExtra0) {
         // Continue boot if load extra image failed.
-        Status = EFI_SUCCESS;
+        // Status = EFI_SUCCESS;
         LoadedImagesInfo->LoadedImageList[Index] = NULL;
-        continue;
+        // continue;
       }
 
       // UnloadBootImages () will free all unnecessary Memory

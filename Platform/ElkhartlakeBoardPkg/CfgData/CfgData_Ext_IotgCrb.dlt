@@ -60,3 +60,14 @@ GPIO_CFG_DATA.GpioPinConfig1_GPP_B02.GPIOLockConfig_GPP_B02 | 0x3
 GPIO_CFG_DATA.GpioPinConfig1_GPP_E02.GPIOLockConfig_GPP_E02 | 0x3
 GPIO_CFG_DATA.GpioPinConfig1_GPP_F04.GPIOLockConfig_GPP_F04 | 0x3
 GPIO_CFG_DATA.GpioPinConfig1_GPP_F20.GPIOLockConfig_GPP_F20 | 0x3
+
+
+# demo: add a second container image as the "extra image"
+BOOT_OPTION_CFG_DATA_0.BootFlags_0       | 8
+BOOT_OPTION_CFG_DATA_1.ImageType_1       | 0x1E
+BOOT_OPTION_CFG_DATA_1.BootImage_1       | '/boot/sbl_os2'
+
+# optional, to match my demo env
+BOOT_OPTION_CFG_DATA_0.HwPart_0          | 1
+BOOT_OPTION_CFG_DATA_1.HwPart_1          | 1
+BOOT_OPTION_CFG_DATA_1.FsType_1          | 1
