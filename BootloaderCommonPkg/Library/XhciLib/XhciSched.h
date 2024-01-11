@@ -1,7 +1,7 @@
 /** @file
 Private Header file for Usb Host Controller PEIM
 
-Copyright (c) 2014 - 2015, Intel Corporation. All rights reserved.<BR>
+Copyright (c) 2014 - 2024, Intel Corporation. All rights reserved.<BR>
 
 SPDX-License-Identifier: BSD-2-Clause-Patent
 
@@ -149,6 +149,7 @@ typedef struct _EVENT_RING {
 } EVENT_RING;
 
 #define XHC_URB_SIG                 SIGNATURE_32 ('U', 'S', 'B', 'R')
+#define XHC_INIT_DEVICE_SLOT_RETRIES 1
 
 //
 // URB (Usb Request Block) contains information for all kinds of
