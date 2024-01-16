@@ -1273,7 +1273,7 @@
       help         : >
                      Selects SPI operation mode. N represents controller index: SPI0, SPI1, ... Available modes: 0:SerialIoSpiDisabled, 1:SerialIoSpiPci, 2:SerialIoSpiHidden
       length       : 0x07
-      value        : {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
+      value        : {0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00}
   - SerialIoSpiCsPolarity :
       name         : SPI ChipSelect signal polarity
       type         : EditNum, HEX, (0x00,0xFFFFFF)

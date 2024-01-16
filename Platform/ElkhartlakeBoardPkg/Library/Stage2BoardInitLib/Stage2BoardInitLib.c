@@ -1512,7 +1512,7 @@ UpdateFspConfig (
     Fspscfg->PchEspiLgmrEnable          = SiCfgData->PchEspiLgmrEnable;
 
     // PCH SPI_CONFIG
-    Fspscfg->SerialIoSpiMode[1]         = 0;
+    // Fspscfg->SerialIoSpiMode[1]         = 0;
 
     Fspscfg->SerialIoSpiCsPolarity[0]   = 1;
     Fspscfg->SerialIoSpiCsPolarity[1]   = 1;
