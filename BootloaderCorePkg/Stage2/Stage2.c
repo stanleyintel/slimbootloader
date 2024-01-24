@@ -539,12 +539,17 @@ SecStartup (
   // Allocate SMBIOS tables' memory, set Base and call Smbios init
   //
   if (FixedPcdGetBool (PcdSmbiosEnabled)) {
-    SmbiosEntry = AllocateZeroPool (PcdGet16(PcdSmbiosTablesSize));
-    Status = PcdSet32S (PcdSmbiosTablesBase, (UINT32)(UINTN)SmbiosEntry);
-    Status = SmbiosInit ();
-    if (EFI_ERROR(Status)) {
-      DEBUG ((DEBUG_INFO, "SMBIOS init Status = %r\n", Status));
+    if (BootMode == BOOT_ON_S3_RESUME) {
+      SmbiosEntry = AllocatePool (PcdGet16(PcdSmbiosTablesSize));
+    } else {
+      SmbiosEntry = AllocateZeroPool (PcdGet16(PcdSmbiosTablesSize));
+      Status = PcdSet32S (PcdSmbiosTablesBase, (UINT32)(UINTN)SmbiosEntry);
+      Status = SmbiosInit ();
+      if (EFI_ERROR(Status)) {
+        DEBUG ((DEBUG_INFO, "SMBIOS init Status = %r\n", Status));
+      }
     }
+    DEBUG ((DEBUG_INFO, "@@@ SmbiosEntry address = %p\n", SmbiosEntry));
   }
 
   // PCI Enumeration
@@ -625,7 +630,7 @@ SecStartup (
   }
 
   // Finalize Smbios (add Type127 and cheksum)
-  if (FixedPcdGetBool (PcdSmbiosEnabled)) {
+  if (FixedPcdGetBool (PcdSmbiosEnabled) && (BootMode != BOOT_ON_S3_RESUME)) {
     FinalizeSmbios ();
   }
 

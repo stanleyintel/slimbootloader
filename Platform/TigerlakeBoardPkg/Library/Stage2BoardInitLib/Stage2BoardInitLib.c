@@ -913,7 +913,7 @@ BoardInit (
 
     break;
   case PrePayloadLoading:
-    if (FeaturePcdGet (PcdSmbiosEnabled) && FeaturePcdGet (PcdEnableDts)) {
+    if (FeaturePcdGet (PcdSmbiosEnabled) && FeaturePcdGet (PcdEnableDts) && (GetBootMode() != BOOT_ON_S3_RESUME)) {
       AppendSmbiosBootDts ();
     }
     IgdOpRegionPlatformInit ();
