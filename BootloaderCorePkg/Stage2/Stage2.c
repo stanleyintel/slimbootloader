@@ -541,6 +541,7 @@ SecStartup (
   if (FixedPcdGetBool (PcdSmbiosEnabled)) {
     SmbiosEntry = AllocateZeroPool (PcdGet16(PcdSmbiosTablesSize));
     Status = PcdSet32S (PcdSmbiosTablesBase, (UINT32)(UINTN)SmbiosEntry);
+    DEBUG ((DEBUG_INFO, "@@@ SmbiosEntry address = %p\n", SmbiosEntry));
     Status = SmbiosInit ();
     if (EFI_ERROR(Status)) {
       DEBUG ((DEBUG_INFO, "SMBIOS init Status = %r\n", Status));
