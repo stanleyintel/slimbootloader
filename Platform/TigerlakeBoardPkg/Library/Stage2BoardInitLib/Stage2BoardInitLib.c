@@ -537,8 +537,27 @@ InitializeSmbiosInfo (
   SMBIOS_TYPE_STRINGS  *TempSmbiosStrTbl;
   BOOT_LOADER_VERSION  *VerInfoTbl;
   VOID                 *SmbiosStringsPtr;
+  EFI_STATUS            Status;
+  CHAR8                *TempOemDataBase;
+  CHAR8                 OemDataBase[20]; // the first 20 bytes for POC
+  UINT32                OemDataSize;
 
   Index         = 0;
+
+  // POC: Device Info is under OEMD/DINF
+  //
+  // Both LoadComponent and TempSmbiosStrTbl uses AllocateTemporaryMemory() resulting in conflict.
+  // Therefore, the TempOemDataBase must be copied before next AllocateTemporaryMemory.
+  Status = LoadComponent (SIGNATURE_32 ('O', 'E', 'M', 'D'), SIGNATURE_32 ('D', 'I', 'N', 'F'),
+                            (VOID **)&TempOemDataBase, &OemDataSize);
+  if (EFI_ERROR (Status)) {
+    AsciiSPrint (OemDataBase, sizeof (OemDataBase), "System Serial Number");
+    DEBUG ((DEBUG_INFO, "@@@ unable to find OEM Data: %r\n", Status));
+  } else {
+    AsciiSPrint (OemDataBase, sizeof (OemDataBase), "%a", TempOemDataBase);
+    DEBUG ((DEBUG_INFO, "@@@ OEM Data: >%a<, Size=%d\n", OemDataBase, OemDataSize));
+  }
+
   TempSmbiosStrTbl  = (SMBIOS_TYPE_STRINGS *) AllocateTemporaryMemory (0);
   if (TempSmbiosStrTbl == NULL) {
     return EFI_OUT_OF_RESOURCES;
@@ -583,7 +602,7 @@ InitializeSmbiosInfo (
   AddSmbiosTypeString (&TempSmbiosStrTbl[Index++], SMBIOS_TYPE_SYSTEM_INFORMATION,
     3, "0.1");
   AddSmbiosTypeString (&TempSmbiosStrTbl[Index++], SMBIOS_TYPE_SYSTEM_INFORMATION,
-    4, "System Serial Number");
+    4, OemDataBase);
   AddSmbiosTypeString (&TempSmbiosStrTbl[Index++], SMBIOS_TYPE_SYSTEM_INFORMATION,
     5, "System SKU Number");
   AddSmbiosTypeString (&TempSmbiosStrTbl[Index++], SMBIOS_TYPE_SYSTEM_INFORMATION,
