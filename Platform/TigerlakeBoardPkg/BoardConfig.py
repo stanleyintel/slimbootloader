@@ -162,6 +162,7 @@ class Board(BaseBoard):
         self.KEYHASH_SIZE         = 0x00001000
         self.VARIABLE_SIZE        = 0x00002000
         self.SBLRSVD_SIZE         = 0x00001000
+        self.OEMDATA_SIZE         = 0x00002000
         self.FWUPDATE_SIZE        = 0x00020000 if self.ENABLE_FWU else 0
         self.OS_LOADER_FD_NUMBLK  = self.OS_LOADER_FD_SIZE // self.FLASH_BLOCK_SIZE
 
@@ -190,7 +191,7 @@ class Board(BaseBoard):
         Redundant_Components_Size = self.UCODE_SIZE + self.STAGE2_SIZE + self.STAGE1B_SIZE + self.FWUPDATE_SIZE + self.CFGDATA_SIZE + self.KEYHASH_SIZE
         if Redundant_Components_Size > self.REDUNDANT_SIZE:
             raise Exception ('Redundant region size 0x%x is smaller than required components size 0x%x!' % (self.REDUNDANT_SIZE, Redundant_Components_Size))
-        self.NON_VOLATILE_SIZE    = 0x001000
+        self.NON_VOLATILE_SIZE    = 0x003000
         # For firmware update, please keep SLIMBOOTLOADER_SIZE unchanged!
         # The info can be found in the 'RomSize' of Outputs/tgl/FlashMap.txt
         # Max size for 16MB IFWI: 0xAD8000
@@ -382,7 +383,15 @@ class Board(BaseBoard):
               ('TMAC',  '',   'Lz4',     container_list_auth_type,   'KEY_ID_CONTAINER_COMP'+'_'+self._RSA_SIGN_TYPE,     0,   self.TMAC_SIZE,        0),   # TSN MAC Address
             )
 
-        return [container_list]
+        # OEMD/DINF (OEM Data / Device Info )
+        CompFileOemData = os.path.join(bins, 'OemData_unsigned.bin')
+        oem_data_container = []
+        oem_data_container.append (
+          ('OEMD',      'OemData_signed.bin',          '',     container_list_auth_type,   'KEY_ID_CONTAINER'+'_'+self._RSA_SIGN_TYPE,    0,           0        ,      0))
+        oem_data_container.append (
+          ('DINF', CompFileOemData,     'Lz4',   container_list_auth_type,   'KEY_ID_CONTAINER_COMP'+'_'+self._RSA_SIGN_TYPE,    0,   0,  0))
+
+        return [container_list, oem_data_container]
 
     def GetOutputImages (self):
         # define extra images that will be copied to output folder
@@ -411,6 +420,7 @@ class Board(BaseBoard):
         img_list.extend ([
                 ('NON_VOLATILE.bin', [
                     ('SBLRSVD.bin',    ''        , self.SBLRSVD_SIZE,  STITCH_OPS.MODE_FILE_NOP, STITCH_OPS.MODE_POS_TAIL),
+                    ('OemData_signed.bin' ,  ''  , self.OEMDATA_SIZE, STITCH_OPS.MODE_FILE_PAD, STITCH_OPS.MODE_POS_TAIL),
                     ]
                 ),
                 ('NON_REDUNDANT.bin', [
