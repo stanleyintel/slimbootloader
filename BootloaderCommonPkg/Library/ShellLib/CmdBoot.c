@@ -15,6 +15,7 @@
 #include <Library/PrintLib.h>
 #include <Library/BootOptionLib.h>
 #include <Guid/OsBootOptionGuid.h>
+#include <Library/DebugLib.h>
 #include "Shell.h"
 
 /**
@@ -269,6 +270,8 @@ GetBootFileInfo (
   EFI_STATUS                 Status;
   BOOLEAN                    IsHex;
   UINTN                      Length;
+  CHAR8 *StrPtr;
+  UINT64 Lba;
 
   if (LoadImageType >= LoadImageTypeMax) {
     ShellPrint (L"Invalid LoadImageType '0x%X'\n", LoadImageType);
@@ -276,7 +279,12 @@ GetBootFileInfo (
   }
 
   ShellPrint (L"Enter SwPart (uint)\n");
-  ShellPrint (L"(default 0x%X) ", CurrOption->Image[LoadImageType].FileImage.SwPart);
+  if (BootOption->Image[LoadImageType].LbaImage.Valid == 1) {
+    ShellPrint (L"(default 0x%X) ", CurrOption->Image[LoadImageType].LbaImage.SwPart);
+  } else {
+    ShellPrint (L"(default 0x%X) ", CurrOption->Image[LoadImageType].FileImage.SwPart);
+  }
+
   Status = ShellReadUintn (Shell, Buffer, BufferSize, &IsHex);
   if (EFI_ERROR (Status)) {
     return Status;
@@ -302,18 +310,33 @@ GetBootFileInfo (
                     sizeof (BootOption->Image[LoadImageType].FileImage.FileName) - 1
                     );
     }
-    ShellPrint (L"(default '%a') ", CurrOption->Image[LoadImageType].FileImage.FileName);
+    if (BootOption->Image[LoadImageType].LbaImage.Valid == 1) {
+      ShellPrint (L"(default '0x%x') ", CurrOption->Image[LoadImageType].LbaImage.LbaAddr);
+    } else {
+      ShellPrint (L"(default '%a') ", CurrOption->Image[LoadImageType].FileImage.FileName);
+    }
     Status = ShellReadLine (Shell, Buffer, BufferSize);
     if (EFI_ERROR (Status)) {
       return Status;
     }
     Length = StrLen (Buffer);
     if (Length == 0) {
+      /* FIXME, for LbaImage.Valid case */
       CopyMem (BootOption->Image[LoadImageType].FileImage.FileName, CurrOption->Image[LoadImageType].FileImage.FileName, sizeof (CurrOption->Image[LoadImageType].FileImage.FileName));
       break;
     }
     if (Length < sizeof (BootOption->Image[LoadImageType].FileImage.FileName)) {
+
       UnicodeStrToAsciiStrS (Buffer, (CHAR8 *)BootOption->Image[LoadImageType].FileImage.FileName, sizeof (BootOption->Image[LoadImageType].FileImage.FileName));
+
+      StrPtr = (CHAR8 *)BootOption->Image[LoadImageType].FileImage.FileName;
+      DEBUG((DEBUG_ERROR, "@@@ get string: %s\n", StrPtr));
+      if ((StrPtr[0] == '#') && (AsciiStrHexToUint64S (StrPtr + 1, NULL, &Lba) == RETURN_SUCCESS)) {
+		    BootOption->Image[LoadImageType].LbaImage.Valid   = 1;
+		    BootOption->Image[LoadImageType].LbaImage.SwPart   = 0xFF;
+        BootOption->Image[LoadImageType].LbaImage.LbaAddr = (UINT32)Lba;
+        DEBUG((DEBUG_ERROR, "good, Lba=%x\n", BootOption->Image[LoadImageType].LbaImage.LbaAddr));
+			}
       break;
     }
     ShellPrint (L"Invalid, too long: '%s' len=%d, please re-enter\n", Buffer, Length);
@@ -429,7 +452,7 @@ PrintBootOption (
   ShellPrint (L"Idx|ImgType|DevType|DevNum|Flags|HwPart|FsType|SwPart|File/Lbaoffset\n");
   for (Index = 0; Index < OsBootOptionList->OsBootOptionCount; Index++) {
     BootOption = &OsBootOptionList->OsBootOption[Index];
-    if (BootOption->FsType < EnumFileSystemMax) {
+    if (BootOption->FsType < EnumFileSystemMax && (BootOption->Image[0].LbaImage.Valid != 1)) {
       ShellPrint (L"%3x|%7x| %5a | %4x | %3x | %4x | %4a | %4x | %a", \
                  Index, \
                  BootOption->ImageType, \
