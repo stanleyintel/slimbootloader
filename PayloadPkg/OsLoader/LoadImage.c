@@ -135,6 +135,19 @@ GetBootImageFromRawPartition (
     LogicBlkDev.StartBlock = 0;
   }
 
+  if (MediaGetInterfaceType() == OsBootDeviceMemory) {
+    ContainerHdr = (CONTAINER_HDR *)(UINTN)LbaAddr;
+    if (ContainerHdr->Signature == CONTAINER_BOOT_SIGNATURE) {
+      ImageSize = ContainerHdr->DataOffset + ContainerHdr->DataSize;
+      LoadedImage->Flags      |= LOADED_IMAGE_CONTAINER;
+      LoadedImage->ImageData.Addr = (VOID *)(UINTN)LbaAddr;
+      LoadedImage->ImageData.Size = (UINT32)ImageSize;
+      LoadedImage->ImageData.AllocType = ImageAllocateTypePointer;
+      DEBUG ((DEBUG_INFO, "@@@ use memory address directly"));
+      return EFI_SUCCESS;
+    }
+  }
+
   Status = MediaGetMediaInfo (BootOption->HwPart, &BlockInfo);
   if (EFI_ERROR (Status)) {
     DEBUG ((DEBUG_INFO, "Get media info error - %r\n", Status));
