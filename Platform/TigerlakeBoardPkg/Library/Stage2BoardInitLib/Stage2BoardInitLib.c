@@ -482,8 +482,11 @@ ProgramSecuritySetting (
   SpiBaseAddress = GetDeviceAddr (OsBootDeviceSpi, 0);
   SpiBaseAddress = TO_MM_PCI_ADDRESS (SpiBaseAddress);
 
-  // Set the BIOS Lock Enable and EISS bits
-  MmioOr8 (SpiBaseAddress + R_SPI_CFG_BC, (UINT8) (B_SPI_CFG_BC_LE | B_SPI_CFG_BC_EISS));
+  // Security risk: calling the MmioAndThenOr8() below is for development/demo only
+  // DO NOT APPLY the change in production phase.
+  // Begin of demo code: show how to control EISS and WPD
+  MmioAndThenOr8 (SpiBaseAddress + R_SPI_CFG_BC, (UINT8) (~B_SPI_CFG_BC_EISS), (UINT8) (BIT0));
+  // End of demo code
 
   ClearFspHob ();
 }
@@ -1285,13 +1288,13 @@ UpdateFspConfig (
         //
         Address -= ((UINT32)(~TotalSize) + 1);
 
-        FspsConfig->PchWriteProtectionEnable[PrIndex] = TRUE;
+        FspsConfig->PchWriteProtectionEnable[PrIndex] = FALSE;
         FspsConfig->PchReadProtectionEnable[PrIndex]  = FALSE;
         FspsConfig->PchProtectedRangeBase[PrIndex]    = (UINT16) (BaseAddress >> 12);
         FspsConfig->PchProtectedRangeLimit[PrIndex]   = (UINT16) ((BaseAddress + Address - 1) >> 12);
         PrIndex++;
 
-        FspsConfig->PchWriteProtectionEnable[PrIndex] = TRUE;
+        FspsConfig->PchWriteProtectionEnable[PrIndex] = FALSE;
         FspsConfig->PchReadProtectionEnable[PrIndex]  = FALSE;
         FspsConfig->PchProtectedRangeBase[PrIndex]    = (UINT16) ((BaseAddress + Address + VarSize) >> 12);
         FspsConfig->PchProtectedRangeLimit[PrIndex]   = (UINT16) ((BaseAddress + TotalSize - 1) >> 12);
@@ -1300,7 +1303,7 @@ UpdateFspConfig (
         //
         // Protect the whole BIOS region
         //
-        FspsConfig->PchWriteProtectionEnable[PrIndex] = TRUE;
+        FspsConfig->PchWriteProtectionEnable[PrIndex] = FALSE;
         FspsConfig->PchReadProtectionEnable[PrIndex]  = FALSE;
         FspsConfig->PchProtectedRangeBase[PrIndex]    = (UINT16) (BaseAddress >> 12);
         FspsConfig->PchProtectedRangeLimit[PrIndex]   = (UINT16) ((BaseAddress + TotalSize - 1) >> 12);
