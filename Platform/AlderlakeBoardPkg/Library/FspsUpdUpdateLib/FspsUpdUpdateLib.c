@@ -739,6 +739,9 @@ UpdateFspConfig (
       FspsConfig->PcieRpLtrMaxNoSnoopLatency[Index]   = 0x1003;
       FspsConfig->PciePtm[Index]                      = SiCfgData->PciePtm[Index];
       FspsConfig->PcieRpPcieSpeed[Index]              = SiCfgData->PcieRpPcieSpeed[Index];
+      // make RP visible, easier for debug
+      FspsConfig->PcieRpSlotImplemented[Index] = 1;
+      FspsConfig->PcieRpHotPlug[Index] = 1;
     }
 
     for (Index = 0; Index < 4; Index++) {
