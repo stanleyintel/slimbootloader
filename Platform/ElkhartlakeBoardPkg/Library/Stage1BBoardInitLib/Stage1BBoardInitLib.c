@@ -512,6 +512,7 @@ UpdateFspConfig (
     Fspmcfg->BistOnReset                = MemCfgData->BistOnReset;
     Fspmcfg->VmxEnable                  = MemCfgData->VmxEnable;
     Fspmcfg->CpuRatio                   = MemCfgData->CpuRatio;
+    Fspmcfg->CpuRatio                   = 8;
 
     //CPU_TXT_PREMEM_CONFIG
     Fspmcfg->SinitMemorySize            = MemCfgData->SinitMemorySize;

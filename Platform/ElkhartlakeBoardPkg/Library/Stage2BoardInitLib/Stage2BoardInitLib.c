@@ -1753,7 +1753,7 @@ UpdateFspConfig (
     Fspscfg->SixCoreRatioLimit             = PowerCfgData->SixCoreRatioLimit;
     Fspscfg->SevenCoreRatioLimit           = PowerCfgData->SevenCoreRatioLimit;
     Fspscfg->EightCoreRatioLimit           = PowerCfgData->EightCoreRatioLimit;
-    Fspscfg->Hwp                           = PowerCfgData->Hwp;
+    Fspscfg->Hwp                           = 0;
     Fspscfg->HdcControl                    = PowerCfgData->HdcControl;
     Fspscfg->EnableItbm                    = PowerCfgData->EnableItbm;
     Fspscfg->EnableItbmDriver              = PowerCfgData->EnableItbmDriver;
@@ -1828,7 +1828,7 @@ UpdateFspConfig (
     Fspscfg->PsysPowerLimit2               = PowerCfgData->PsysPowerLimit2;
 
     //CPU Power Management Test Config
-    Fspscfg->Eist                          = PowerCfgData->Eist;
+    Fspscfg->Eist                          = 0;
     Fspscfg->EnergyEfficientPState         = PowerCfgData->EnergyEfficientPState;
     Fspscfg->EnergyEfficientTurbo          = PowerCfgData->EnergyEfficientTurbo;
     Fspscfg->TStates                       = PowerCfgData->TStates;
