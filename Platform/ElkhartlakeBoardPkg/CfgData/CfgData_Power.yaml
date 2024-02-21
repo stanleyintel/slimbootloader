@@ -47,7 +47,7 @@
       help         : >
                      Enable or Disable HWP(Hardware P states) Support. 0- Disable; <b>1- Enable;</b> 2-3:Reserved
       length       : 0x01
-      value        : 0x01
+      value        : 0x00
   - HdcControl   :
       name         : Hardware Duty Cycle Control
       type         : Combo
@@ -328,7 +328,7 @@
       help         : >
                      Enable or Disable Intel SpeedStep Technology. 0- Disable; <b>1- Enable</b>
       length       : 0x01
-      value        : 0x01
+      value        : 0x00
   - EnergyEfficientPState :
       name         : Enable or Disable Energy Efficient P-state
       type         : Combo
@@ -408,7 +408,7 @@
       help         : >
                      Enable or Disable CPU power states (C-states). 0- Disable; <b>1- Enable</b>
       length       : 0x01
-      value        : 0x01
+      value        : 0x00
   - PmgCstCfgCtrlLock :
       name         : Configure C-State Configuration Lock
       type         : Combo
