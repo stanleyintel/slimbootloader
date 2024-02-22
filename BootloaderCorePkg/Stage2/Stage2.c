@@ -382,6 +382,99 @@ S3ResumePath (
   FindAcpiWakeVectorAndJump (S3Data->AcpiBase);
 }
 
+
+VOID
+EFIAPI
+MemTestCallback (
+  IN EFI_HOB_RESOURCE_DESCRIPTOR  *ResourceDescriptor,
+  IN VOID                         *Param
+  )
+{
+  LOADER_GLOBAL_DATA       *LdrGlobal;
+  LdrGlobal = (LOADER_GLOBAL_DATA *)GetLoaderGlobalDataPointer ();
+  UINT64                    Tolum;
+  UINT64                    Touum;
+  UINT64                    MemPoolStart;
+
+  UINT64 start;
+  UINT64 len;
+  UINT64 *ptr;
+  UINT64 i;
+  volatile UINT64 *ptr2;
+
+  MemPoolStart = LdrGlobal->MemPoolStart;
+
+  if (ResourceDescriptor->ResourceType != EFI_RESOURCE_SYSTEM_MEMORY) {
+    return;
+  }
+
+  Tolum = GetMemoryInfo (EnumMemInfoTolum);
+  Touum = GetMemoryInfo (EnumMemInfoTouum);
+
+  DEBUG ((DEBUG_INFO, "@@@ mem resource: %llx length: %llx\n", ResourceDescriptor->PhysicalStart, ResourceDescriptor->ResourceLength));
+
+  start = ResourceDescriptor->PhysicalStart;
+  len = ResourceDescriptor->ResourceLength;
+  if (ResourceDescriptor->PhysicalStart < SIZE_4GB) {
+    if (ResourceDescriptor->PhysicalStart > Tolum) {
+      DEBUG ((DEBUG_INFO, "    (skip: over Tolum)\n"));
+      return;
+    }
+    if (ResourceDescriptor->PhysicalStart > MemPoolStart) {
+      DEBUG ((DEBUG_INFO, "    (skip: over MemPoolStart)\n"));
+      return;
+    }
+    if ((ResourceDescriptor->PhysicalStart + ResourceDescriptor->ResourceLength)
+          > MemPoolStart) {
+      len = ResourceDescriptor->PhysicalStart + ResourceDescriptor->ResourceLength - MemPoolStart;
+      DEBUG ((DEBUG_INFO, "    (only test: %llx length: %llx)\n", start, len));
+    }
+  } else {
+    if (ResourceDescriptor->PhysicalStart > Touum) {
+      DEBUG ((DEBUG_INFO, "    (skip: over Touum)\n"));
+    }
+    if ((ResourceDescriptor->PhysicalStart + ResourceDescriptor->ResourceLength)
+         > Touum) {
+      len = Touum - ResourceDescriptor->PhysicalStart;
+      DEBUG ((DEBUG_INFO, "    (only test: %llx length: %llx)\n", start, len));
+    }
+  }
+
+  DEBUG((DEBUG_INFO, "  @@ start testing: %llx - %llx length: %llx\n", start, start+len, len));
+  i = len;
+  ptr = (UINT64 *)start;
+#define MAGIC 0x5AA51001
+  while (i) {
+    *ptr = MAGIC;
+    ptr2 = ptr;
+    if (*ptr2 != MAGIC) {
+      DEBUG ((DEBUG_INFO, "   @@@@@@ FAILED at %llx\n)", ptr));
+      return;
+    }
+    // progress every 16 MB
+    if ((len-i) && (((len - i)&0x10FFFFF) == 0)) {
+      DEBUG ((DEBUG_INFO, "    @@@@@@@@ total tested len: %llx remaining: %llx\n", (len-i), i));
+    }
+    // POC: only test the 1st byte in 4k block
+    if (i > 0x1000) {
+      ptr = (UINT64 *)(((UINT64)ptr) + 0x1000);
+      i = i - 0x1000;
+    } else {
+      i = 0; // skip the last block
+    }
+  }
+  DEBUG ((DEBUG_INFO, "    @@@@ PASS\n"));
+}
+
+VOID do_mem_test(VOID)
+{
+  LOADER_GLOBAL_DATA       *LdrGlobal;
+  LdrGlobal = (LOADER_GLOBAL_DATA *)GetLoaderGlobalDataPointer ();
+
+  TraverseMemoryResourceHob (LdrGlobal->FspHobList, MemTestCallback, NULL);
+}
+
+
 /**
   Entry point to the C language phase of Stage2.
 
@@ -432,6 +525,8 @@ SecStartup (
     // Build full physical space 1:1 mapping page table
     CreateIdentityMappingPageTables (0);
   }
+
+  do_mem_test();
 
   // Init all services
   InitializeService ();
