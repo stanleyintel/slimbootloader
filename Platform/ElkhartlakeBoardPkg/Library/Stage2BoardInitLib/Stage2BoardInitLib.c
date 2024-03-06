@@ -430,7 +430,7 @@ ProgramSecuritySetting (
   SpiBaseAddress = TO_MM_PCI_ADDRESS (SpiBaseAddress);
 
   // Set the BIOS Lock Enable and EISS bits
-  MmioOr8 (SpiBaseAddress + R_SPI_BCR, (UINT8) (B_SPI_BCR_BLE | B_SPI_BCR_EISS));
+  // MmioOr8 (SpiBaseAddress + R_SPI_BCR, (UINT8) (B_SPI_BCR_BLE | B_SPI_BCR_EISS));
 }
 
 /**

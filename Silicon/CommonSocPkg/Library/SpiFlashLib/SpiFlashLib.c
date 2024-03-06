@@ -913,7 +913,7 @@ SendSpiCmdEnd:
   ///
   if ((FlashCycleType == FlashCycleWrite) ||
       (FlashCycleType == FlashCycleErase)) {
-    EnableBiosWriteProtect (SpiBaseAddress);
+    // EnableBiosWriteProtect (SpiBaseAddress);
     SetSpiBiosControlRegister (SpiBaseAddress, BiosCtlSave);
   }
 
