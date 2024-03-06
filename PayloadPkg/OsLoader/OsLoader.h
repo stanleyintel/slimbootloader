@@ -70,7 +70,7 @@
 
 #define MKHI_BOOTLOADER_SEED_LEN       64
 
-#define DEFAULT_COMMAND_LINE     "console=ttyS0,115200\0"
+#define DEFAULT_COMMAND_LINE     "console=ttyS4,115200n8\0"
 
 #define EOF                      "<eof>"
 #define GPT_PART_ENTRIES_MAX     4

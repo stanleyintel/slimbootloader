@@ -135,28 +135,28 @@ UpdateLoadedImage (
 
     LinuxImage                = &LoadedImage->Image.Linux;
     LoadedImage->Flags       |= LOADED_IMAGE_LINUX;
-    CopyMem (&LinuxImage->CmdFile, &File[0], sizeof (IMAGE_DATA));
-    CopyMem (&LinuxImage->BootFile, &File[1], sizeof (IMAGE_DATA));
+    // CopyMem (&LinuxImage->CmdFile, &File[0], sizeof (IMAGE_DATA));
+    CopyMem (&LinuxImage->BootFile, &File[0], sizeof (IMAGE_DATA));
 
-    if (NumFiles > 2) {
-      CopyMem (&LinuxImage->InitrdFile, &File[2], sizeof (IMAGE_DATA));
+    if (NumFiles > 1) {
+      CopyMem (&LinuxImage->InitrdFile, &File[1], sizeof (IMAGE_DATA));
 
       //
       // Make sure Initrd is page aligned
       //
-      if (((((UINTN)File[2].Addr) & EFI_PAGE_MASK) != 0) && (File[2].Size > 0)) {
-        LinuxImage->InitrdFile.Addr = AllocatePages (EFI_SIZE_TO_PAGES (File[2].Size));
+      if (((((UINTN)File[1].Addr) & EFI_PAGE_MASK) != 0) && (File[1].Size > 0)) {
+        LinuxImage->InitrdFile.Addr = AllocatePages (EFI_SIZE_TO_PAGES (File[1].Size));
         if (LinuxImage->InitrdFile.Addr == NULL) {
           return EFI_OUT_OF_RESOURCES;
         }
-        CopyMem (LinuxImage->InitrdFile.Addr, File[2].Addr, File[2].Size);
+        CopyMem (LinuxImage->InitrdFile.Addr, File[1].Addr, File[1].Size);
         LinuxImage->InitrdFile.AllocType = ImageAllocateTypePage;
-        FreeImageData (&File[2]);
+        FreeImageData (&File[1]);
       }
     }
 
     // Save other binary blobs
-    Index = 3;
+    Index = 2;
     while ((Index < MAX_EXTRA_FILE_NUMBER) && (Index < NumFiles)) {
       // Update ACPI tables if we encounter an ACPI blob
       if (File[Index].Name == SIGNATURE_32('A', 'C', 'P', 'I')) {
@@ -170,7 +170,7 @@ UpdateLoadedImage (
           Index++;
           continue;
         }
-      CopyMem (&LinuxImage->ExtraBlob[Index - 3], &File[Index], sizeof (IMAGE_DATA));
+      CopyMem (&LinuxImage->ExtraBlob[Index - 2], &File[Index], sizeof (IMAGE_DATA));
 
       //
       // Update the blob's address in the kernel command line so that the OS knows where it resides
