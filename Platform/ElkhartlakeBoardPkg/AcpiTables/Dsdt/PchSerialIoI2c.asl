@@ -52,6 +52,15 @@ Scope(\_SB.PC00) {
     If (LOr (LEqual (I2C0_MODE, SERIAL_IO_I2C_PCI), LEqual (I2C0_MODE, SERIAL_IO_I2C_DISABLED))) {
       Method (_ADR) { Return (SERIAL_IO_I2C0_ADR) }
     }
+
+    Name (IC0S,100000)
+
+    Name (_DSD, Package () {
+      ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
+      Package () {
+        Package (2) {"clock-frequency", IC0S}
+      }
+    })
   }
 //------------------------------------------
 //  Serial IO I2C Controller 1 Configuration
