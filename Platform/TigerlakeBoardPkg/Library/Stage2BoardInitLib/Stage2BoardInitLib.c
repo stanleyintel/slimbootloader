@@ -1604,6 +1604,8 @@ UpdateFspConfig (
     }
   }
 
+  FspsConfig->GraphicFusaConfigEnable = 0;
+  FspsConfig->DisplayFusaConfigEnable = 0;
   if (FeaturePcdGet (PcdEnablePciePm)) {
     StoreRpConfig (FspsConfig);
   }
