@@ -96,8 +96,8 @@ Scope(\_SB) {
 // D28
     Package(){0x001CFFFF, 0, 0, 16 },
     Package(){0x001CFFFF, 1, 0, 17 },
-    Package(){0x001CFFFF, 2, 0, 18 },
-    Package(){0x001CFFFF, 3, 0, 19 },
+    Package(){0x001CFFFF, 2, 0, 19 },
+    Package(){0x001CFFFF, 3, 0, 18 },
 // D27
     Package(){0x001BFFFF, 0, 0, 16 },
     Package(){0x001BFFFF, 1, 0, 17 },

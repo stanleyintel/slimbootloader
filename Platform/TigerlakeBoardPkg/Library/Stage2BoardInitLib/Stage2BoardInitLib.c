@@ -153,8 +153,8 @@ SI_PCH_DEVICE_INTERRUPT_CONFIG mPchLpDevIntConfig[] = {
 //  {30, 7, SiPchIntB, 18}, // Reserved for IOAPIC
   {28, 0, SiPchIntA, 16}, // PCI Express Port 1, INT is default, programmed in PciCfgSpace + FCh
   {28, 1, SiPchIntB, 17}, // PCI Express Port 2, INT is default, programmed in PciCfgSpace + FCh
-  {28, 2, SiPchIntC, 18}, // PCI Express Port 3, INT is default, programmed in PciCfgSpace + FCh
-  {28, 3, SiPchIntD, 19}, // PCI Express Port 4, INT is default, programmed in PciCfgSpace + FCh
+  {28, 2, SiPchIntC, 19}, // PCI Express Port 3, INT is default, programmed in PciCfgSpace + FCh
+  {28, 3, SiPchIntD, 18}, // PCI Express Port 4, INT is default, programmed in PciCfgSpace + FCh
   {25, 2, SiPchIntC, 33}, // SerialIo UART Controller #2, INTA is default, programmed in PCR[SERIALIO] + PCICFGCTRL[9]
 //  {24, 0, 0, 0}, // Reserved (used by RST PCIe Storage Cycle Router)
   {23, 0, SiPchIntA, 16}, // SATA Controller, INTA is default, programmed in PciCfgSpace + 3Dh
@@ -1026,7 +1026,7 @@ FspUpdatePcieRpPolicy (
   UINT8             MaxPcieRootPorts;
   MaxPcieRootPorts = GetPchMaxPciePortNum ();
   for (Index = 0; Index < MaxPcieRootPorts; Index++) {
-    FspsUpd->FspsConfig.PcieRpHotPlug[Index] = 0x0;
+    FspsUpd->FspsConfig.PcieRpHotPlug[Index] = 0x1;
     FspsUpd->FspsConfig.PcieRpPmSci[Index]   = 0x1;
     FspsUpd->FspsConfig.PcieRpTransmitterHalfSwing[Index] = 0x0;
     FspsUpd->FspsConfig.PcieRpClkReqDetect[Index] = 0x1;
