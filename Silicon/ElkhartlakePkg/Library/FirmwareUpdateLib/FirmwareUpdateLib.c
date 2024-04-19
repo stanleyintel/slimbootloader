@@ -400,6 +400,7 @@ ClearFwUpdateTrigger (
 
 **/
 EFI_STATUS
+EFIAPI
 SetFlashDescriptorLock (
   IN  CHAR8      *CmdDataBuf,
   IN  UINTN      CmdDataSize

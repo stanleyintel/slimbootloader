@@ -704,6 +704,7 @@ IgdOpRegionPlatformInit (
 
 **/
 VOID
+EFIAPI
 BoardInit (
   IN  BOARD_INIT_PHASE    InitPhase
 )
@@ -1140,6 +1141,7 @@ FspUpdatePsePolicy (
   @param  FspsUpdPtr            The pointer to the FSP-S UPD to be updated.
 **/
 VOID
+EFIAPI
 UpdateFspConfig (
   VOID     *FspsUpdPtr
 )

@@ -305,6 +305,7 @@ UpdateS0ixStatus (
   @retval None
 **/
 VOID
+EFIAPI
 UpdateFspConfig (
   VOID     *FspmUpdPtr
 )
@@ -319,6 +320,9 @@ UpdateFspConfig (
   UINT8                         DebugPort;
   BOOLEAN                       PchSciSupported;
   TCC_CFG_DATA                  *TccCfgData;
+  UINT32                        CarBase;
+  UINT32                        CarSize;
+  EFI_STATUS                    Status;
 
   FspmUpd                       = (FSPM_UPD *)FspmUpdPtr;
   FspmArchUpd                   = &FspmUpd->FspmArchUpd;
@@ -351,9 +355,15 @@ UpdateFspConfig (
   //FSPM has a default value initially, during boot time, Slimboot can modify it which is coming from CfgData blob.
   //then call FSPMemoryInit() who consumes all the overridden values from CfgData blob.
 
-  // Value from EDKII BIOS.
-  FspmArchUpd->StackBase        = 0xFEF3FF00;
-  FspmArchUpd->StackSize        = 0x40000;
+  Status = GetTempRamInfo (&CarBase, &CarSize);
+  ASSERT_EFI_ERROR (Status);
+  FspmArchUpd->StackBase = CarBase \
+                                 + FixedPcdGet32 (PcdStage1StackBaseOffset) \
+                                 + FixedPcdGet32 (PcdStage1StackSize) \
+                                 + FixedPcdGet32 (PcdStage1DataSize);
+  FspmArchUpd->StackSize = CarBase + CarSize - FspmUpd->FspmArchUpd.StackBase;
+  DEBUG ((DEBUG_INFO, "CAR Base 0x%X (0x%X)\n", CarBase, CarSize));
+  DEBUG ((DEBUG_INFO, "FSPM Stack Base=0x%X, Size=0x%X\n", FspmUpd->FspmArchUpd.StackBase, FspmUpd->FspmArchUpd.StackSize));
 
   DEBUG ((DEBUG_INFO, "FSPM CfgData assignment\n"));
   MemCfgData = (MEMORY_CFG_DATA *)FindConfigDataByTag (CDATA_MEMORY_TAG);
@@ -1124,6 +1134,7 @@ GetPlatformPowerState (
   @retval None
 **/
 VOID
+EFIAPI
 BoardInit (
   IN  BOARD_INIT_PHASE  InitPhase
 )

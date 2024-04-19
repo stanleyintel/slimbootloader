@@ -60,3 +60,6 @@
   gPlatformModuleTokenSpaceGuid.PcdAcpiEnabled
   gPlatformModuleTokenSpaceGuid.PcdVtdEnabled
   gPlatformCommonLibTokenSpaceGuid.PcdTccEnabled
+  gPlatformModuleTokenSpaceGuid.PcdStage1StackBaseOffset
+  gPlatformModuleTokenSpaceGuid.PcdStage1StackSize
+  gPlatformModuleTokenSpaceGuid.PcdStage1DataSize

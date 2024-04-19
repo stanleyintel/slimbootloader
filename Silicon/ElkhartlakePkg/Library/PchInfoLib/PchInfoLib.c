@@ -156,6 +156,7 @@ IsPchLp (
   @return  TRUE if it is Multi VC
 **/
 BOOLEAN
+EFIAPI
 IsRpMultiVC (
   IN  UINT32                   RpIndex
   )
