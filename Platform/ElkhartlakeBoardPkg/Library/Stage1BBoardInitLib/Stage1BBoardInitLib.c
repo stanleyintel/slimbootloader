@@ -1112,7 +1112,7 @@ GetPlatformPowerState (
   ///
   /// Disable Power Management Event EN
   ///
-  IoAnd32 (ACPI_BASE_ADDRESS + R_ACPI_IO_GPE0_EN_127_96, (UINT32)~B_ACPI_IO_GPE0_EN_127_96_PME_B0);
+  // IoAnd32 (ACPI_BASE_ADDRESS + R_ACPI_IO_GPE0_EN_127_96, (UINT32)~B_ACPI_IO_GPE0_EN_127_96_PME_B0);
 
   return BootMode;
 }

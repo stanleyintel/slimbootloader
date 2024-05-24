@@ -575,6 +575,24 @@ InitializeSmbiosInfo (
   return EFI_SUCCESS;
 }
 
+UINT32 mGpeEn;
+
+VOID
+doit() {
+  UINT32                SmiSts;
+  UINT32                Pm1Sts;
+  UINT32                Gpe0Sts;
+  UINT32                Gpe0En;
+
+  SmiSts = IoRead32 ((UINTN)(UINT32)(ACPI_BASE_ADDRESS + R_ACPI_IO_SMI_STS));
+  Pm1Sts = IoRead32 ((UINTN)(ACPI_BASE_ADDRESS + R_ACPI_IO_PM1_STS));
+  Gpe0Sts = IoRead32 ((UINTN)(ACPI_BASE_ADDRESS + R_ACPI_IO_GPE0_STS_127_96));
+  Gpe0En = IoRead32 ((UINTN)(ACPI_BASE_ADDRESS + R_ACPI_IO_GPE0_EN_127_96));
+
+  DEBUG((DEBUG_ERROR, "     SmiSts: 0x%x Pm1Sts: 0x%x Gpe0Sts: 0x%x Gpe0En: 0x%x\n", SmiSts, Pm1Sts, Gpe0Sts, Gpe0En));
+
+}
+
 /**
   Clear SMI sources
 
@@ -794,11 +812,15 @@ BoardInit (
       }
     }
 
+    mGpeEn = IoRead32 (ACPI_BASE_ADDRESS + R_ACPI_IO_GPE0_EN_127_96);
+    DEBUG((DEBUG_ERROR, "@@@ PostPciEnumeration original Gpe0En=%x\n", mGpeEn));
+
     if ((GetPayloadId () == UEFI_PAYLOAD_ID_SIGNATURE)
          && GetBootMode() == BOOT_ON_S3_RESUME) {
 
       ClearSmi ();
-
+      IoAnd32 (ACPI_BASE_ADDRESS + R_ACPI_IO_GPE0_EN_127_96, (UINT32)~B_ACPI_IO_GPE0_EN_127_96_PME_B0);
+      doit();
       RestoreS3RegInfo (FindS3Info (S3_SAVE_REG_COMM_ID));
 
       //
@@ -829,6 +851,12 @@ BoardInit (
     MeMeasuredBootInit();
     break;
   case EndOfStages:
+    ClearSmi ();
+    DEBUG((DEBUG_ERROR, "@@@ EndOfStages/try to enable Gpe0En=%x\n", mGpeEn));
+    doit();
+    IoWrite32 (ACPI_BASE_ADDRESS + R_ACPI_IO_GPE0_EN_127_96, mGpeEn);
+    DEBUG((DEBUG_ERROR, "@@@ EndOfStages/done\n"));
+    doit();
     ClearSmi ();
     if (GetPayloadId () == UEFI_PAYLOAD_ID_SIGNATURE) {
       if (GetBootMode() != BOOT_ON_S3_RESUME) {
