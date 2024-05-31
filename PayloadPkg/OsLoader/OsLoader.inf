@@ -25,7 +25,6 @@
 #
 
 [Sources]
-  BlockIoTest.h
   OsLoader.h
   OsLoader.c
   BootOption.c
@@ -33,7 +32,6 @@
   LoadImage.c
   PerformanceData.c
   BootParameters.c
-  BlockIoTest.c
   KeyManagement.c
   PreOsSupport.c
   ModService.c

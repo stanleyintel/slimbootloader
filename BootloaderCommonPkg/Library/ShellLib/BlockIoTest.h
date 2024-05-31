@@ -18,9 +18,10 @@
 #include <Library/UfsBlockIoLib.h>
 #include <Library/UsbBlockIoLib.h>
 #include <Library/PciNvmCtrlLib.h>
+#include <Library/AhciBlockIoLib.h>
 #include <Guid/OsBootOptionGuid.h>
 
-#define TEST_DEVICE_WRITE     0
+#define TEST_DEVICE_WRITE     1
 
 /**
   Perform the BlockIO test for the given device type.

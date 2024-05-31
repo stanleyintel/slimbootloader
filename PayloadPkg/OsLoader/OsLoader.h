@@ -61,7 +61,18 @@
 #include <IndustryStandard/Mbr.h>
 #include <Uefi/UefiGpt.h>
 #include <PayloadModule.h>
-#include "BlockIoTest.h"
+
+#include <Library/BaseMemoryLib.h>
+#include <Library/DebugLib.h>
+#include <Library/MemoryAllocationLib.h>
+
+#include <Library/MmcAccessLib.h>
+#include <Library/SpiBlockIoLib.h>
+#include <Library/UfsBlockIoLib.h>
+#include <Library/UsbBlockIoLib.h>
+#include <Library/PciNvmCtrlLib.h>
+#include <Guid/OsBootOptionGuid.h>
+
 #include <ConfigDataCommonDefs.h>
 #include <Register/Intel/ArchitecturalMsr.h>
 #include <Library/StringSupportLib.h>

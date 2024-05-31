@@ -67,12 +67,14 @@ CreateNewDeviceInfo (
         4 * sizeof (UINT16)
         );
       DeviceInfo->DeviceFeature |= DEVICE_LBA_48_SUPPORT;
+      DEBUG((DEBUG_ERROR, "@@@ path 1: total block num: %llx\n", DeviceInfo->TotalBlockNumber));
     } else {
       CopyMem (
         &DeviceInfo->TotalBlockNumber,
         &AtaData->User_addressable_sectors_lo,
         2 * sizeof (UINT16)
         );
+      DEBUG((DEBUG_ERROR, "@@@ path 2: total block num: %llx\n", DeviceInfo->TotalBlockNumber));
     }
     DeviceInfo->BlockSize        = ATA_BLOCK_SIZE;
   } else if (DeviceType == EfiIdeCdrom) {

@@ -57,6 +57,11 @@ TestDevBlocks (
     DevBlockFunc.GetInfo     = UfsGetMediaInfo;
     DevBlockFunc.ReadBlocks  = UfsReadBlocks;
     DevBlockFunc.WriteBlocks = UfsWriteBlocks;
+  } else if (OsBootOption->DevType == OsBootDeviceSata) {
+    DevBlockFunc.DevInit     = AhciInitialize;
+    DevBlockFunc.GetInfo     = AhciGetMediaInfo;
+    DevBlockFunc.ReadBlocks  = AhciReadBlocks;
+    DevBlockFunc.WriteBlocks = AhciWriteBlocks;
   } else if (OsBootOption->DevType == OsBootDeviceNvme) {
     DevBlockFunc.DevInit     = NvmeInitialize;
     DevBlockFunc.GetInfo     = NvmeGetMediaInfo;
@@ -90,11 +95,11 @@ TestDevBlocks (
       DEBUG ((DEBUG_INFO, "GetInfo [%d] %r\n", Index, Status));
       continue;
     }
-    DEBUG ((DEBUG_INFO, "\nP[%d]: BlockNum=0x%lx BlockSize=0x%x\n", Index, BlockInfo.BlockNum, BlockInfo.BlockSize));
+    DEBUG ((DEBUG_INFO, "\nP[%d]: BlockNum=0x%llx BlockSize=0x%x\n", Index, BlockInfo.BlockNum, BlockInfo.BlockSize));
 
     if ((BlockInfo.BlockNum != 0) && (BlockInfo.BlockSize != 0)) {
       // Test last block read/write
-      TestLba = BlockInfo.BlockNum - 1;
+      TestLba = 0; //BlockInfo.BlockNum - 1;
 
       // test read
       DEBUG ((DEBUG_INFO, "    P[%d]: Try to read block 0x%lx with BlockSize=0x%x\n", Index, TestLba, BlockInfo.BlockSize));

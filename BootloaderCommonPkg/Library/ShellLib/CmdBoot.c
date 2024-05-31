@@ -16,6 +16,7 @@
 #include <Library/BootOptionLib.h>
 #include <Guid/OsBootOptionGuid.h>
 #include "Shell.h"
+#include "BlockIoTest.h"
 
 /**
   Print or modify the OS boot option list.
@@ -546,6 +547,8 @@ ShellCommandBootFunc (
   BOOLEAN              ChangeCurrentIndex;
   BOOLEAN              IsHex;
   BOOLEAN              Swap;
+  BOOLEAN              DoTest;
+  OS_BOOT_OPTION       OsBootOption;
   EFI_STATUS           Status;
 
   SkipArgParse = FALSE;
@@ -580,6 +583,7 @@ ShellCommandBootFunc (
 
   Swap = FALSE;
   ChangeCurrentIndex = FALSE;
+  DoTest = FALSE;
 
   PrintBootOption (BootOptionList);
   do {
@@ -587,6 +591,7 @@ ShellCommandBootFunc (
     ShellPrint (L"  q   -- quit boot option change\n");
     ShellPrint (L"  s   -- swap boot order by index\n");
     ShellPrint (L"  c   -- set the boot index\n");
+    ShellPrint (L"  t   -- test with the boot index\n");
     ShellPrint (L"  idx -- modify the boot option specified by idx (0");
 
     if (BootOptionList->OsBootOptionCount > 1) {
@@ -606,6 +611,13 @@ ShellCommandBootFunc (
     } else if (StrCmp (Buffer, L"c") == 0) {
       ChangeCurrentIndex = TRUE;
       break;
+    } else if (StrCmp (Buffer, L"t") == 0) {
+      DoTest = !DoTest;
+      if (DoTest) {
+        ShellPrint (L"Trigger a test\n");
+      } else {
+        ShellPrint (L"Not run test\n");
+      }
     } else if (StrCmp (Buffer, L"q") == 0) {
       goto ExitBootCmd;
     } else {
@@ -617,7 +629,12 @@ ShellCommandBootFunc (
     }
   } while (1);
 
-  if (Swap) {
+  if (DoTest) {
+      ShellPrint (L"Test the boot media with index: %d\n", Index);
+      CopyMem ((VOID *)&OsBootOption, (VOID *)&BootOptionList->OsBootOption[Index], sizeof (OS_BOOT_OPTION));
+      Status = TestDevBlocks (&OsBootOption);
+  }
+  else if (Swap) {
     Status = SwapBootEntries (Shell, Buffer, sizeof (Buffer), BootOptionList);
     if (EFI_ERROR (Status)) {
       goto ExitBootCmd;
