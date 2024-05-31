@@ -1,7 +1,7 @@
 /** @file
   The file provides AHCI block I/O interfaces.
 
-  Copyright (c) 2010 - 2017, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2010 - 2024, Intel Corporation. All rights reserved.<BR>
   SPDX-License-Identifier: BSD-2-Clause-Patent
 
 **/
@@ -60,11 +60,13 @@ CreateNewDeviceInfo (
 
   if (DeviceType == EfiIdeHarddisk) {
     AtaData = &DeviceInfo->IdentifyData.AtaData;
-    if ((AtaData->Command_set_feature_enb_86 & LBA_48_BIT_ADDRESS_FEATURE_SET_SUPPORTED) != 0) {
+    // ATA8-ACS: section 7.16 IDENTIFY DEVICE data
+    if (AtaData->Command_set_supported_83 & BIT10) {
+      // ATA8-ACS: section 4.4 capacities up to 281,474,976,710,655 logical sectors
       CopyMem (
         &DeviceInfo->TotalBlockNumber,
         (UINT8 *)AtaData + 100,
-        4 * sizeof (UINT16)
+        3 * sizeof (UINT16)
         );
       DeviceInfo->DeviceFeature |= DEVICE_LBA_48_SUPPORT;
     } else {
