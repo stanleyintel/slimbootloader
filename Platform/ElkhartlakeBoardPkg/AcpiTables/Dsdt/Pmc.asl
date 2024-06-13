@@ -170,7 +170,9 @@ Scope(\) {
           ,  19,
       CPWS,  1,       // CPU WAKE STATUS
     Offset(R_ACPI_IO_GPE0_EN_127_96),      // 0x7C, General Purpose Event 0 Enable [127:96]
-          ,  19,
+          ,  15,
+      LNWE,  1,
+          ,  3,
       CPWE,  1        // CPU WAKE EN
   }
 

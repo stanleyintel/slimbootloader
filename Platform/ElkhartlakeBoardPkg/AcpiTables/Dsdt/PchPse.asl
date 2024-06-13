@@ -79,7 +79,8 @@ Scope(\_SB.PC00) {
       Offset(0x10), TADL,  32,
       Offset(0x14), TADH,  32,
       Offset(0x84),
-          , 15,
+      PWRS, 2,
+          , 13,
       PMES, 1
     }
     Method(_PRW, 0) {
@@ -118,7 +119,8 @@ Scope(\_SB.PC00) {
       Offset(0x10), TADL,  32,
       Offset(0x14), TADH,  32,
       Offset(0x84),
-          , 15,
+      PWRS, 2,
+          , 13,
       PMES, 1
     }
     Method(_PRW, 0) {

@@ -75,8 +75,11 @@ External(\_SB.PC00.GTSN.TADL)
 External(\_SB.PC00.GTSN.TADH)
 External(\_SB.PC00.OTN0.TADL)
 External(\_SB.PC00.OTN0.TADH)
+External(\_SB.PC00.OTN0.PWRS)
 External(\_SB.PC00.OTN1.TADL)
 External(\_SB.PC00.OTN1.TADH)
+External(\_SB.PC00.OTN1.PWRS)
+External(\_SB.PMIO.LNEN)
 External(TBTD, MethodObj)
 External(TBTF, MethodObj)
 External(MMRP, MethodObj)
@@ -178,6 +181,16 @@ Method(\_PIC,1)
 
 Method(_PTS,1)
 {
+  If (LEqual (Arg0, 0x05)) // Check if the system is transitioning to S5
+  {
+    If(LEqual(\PWOL, 1))
+    {
+      Store (0x1, \_SB.PMIO.LNEN)
+      Store (0x3, \_SB.PC00.OTN0.PWRS)
+      Store (0x3, \_SB.PC00.OTN1.PWRS)
+    }
+  }
+
   D8XH(0,Arg0)    // Output Sleep State to Port 80h, Byte 0.
   D8XH(1,0)       // output byte 1 = 0, sleep entry
 }

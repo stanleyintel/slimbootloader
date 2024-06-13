@@ -931,6 +931,10 @@ PlatformUpdateAcpiGnvs (
     PchNvs->UI0[Index] = GetSerialIoUartIrq(Index);
   }
 
+  if (FspsConfig->PchPseWoLEnabled && (PlatformNvs->PseTsn0Enabled || PlatformNvs->PseTsn1Enabled)) {
+    PlatformNvs->PseWolServiceEnable = 1;
+  }
+
   PlatformNvs->USTP                             = 1;
 
   PlatformNvs->Ps2MouseEnable                   = 0;
