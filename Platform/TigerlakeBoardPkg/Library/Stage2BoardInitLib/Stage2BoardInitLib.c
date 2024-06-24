@@ -1382,6 +1382,8 @@ UpdateFspConfig (
 
   FspUpdatePcieRpPolicy(FspsUpd);
 
+  FspsConfig->PpinSupport = 1;
+
   // Required for RVP board
   FspsConfig->Usb2OverCurrentPin[2] = 0xff;
 
