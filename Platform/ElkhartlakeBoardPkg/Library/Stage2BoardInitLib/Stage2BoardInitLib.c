@@ -1534,7 +1534,14 @@ UpdateFspConfig (
     if (DebugPort < PCH_MAX_SERIALIO_UART_CONTROLLERS) {
       Fspscfg->SerialIoDebugUartNumber = DebugPort;
       // Skip FSP-S to reinitialize current UART port
-      Fspscfg->SerialIoUartMode[DebugPort] = 0x4;
+      Fspscfg->SerialIoUartMode[DebugPort]            = 1;
+      Fspscfg->SerialIoUartBaudRate[DebugPort]        = 115200;
+      Fspscfg->SerialIoUartParity[DebugPort]          = 0;
+      Fspscfg->SerialIoUartDataBits[DebugPort]        = 8;
+      Fspscfg->SerialIoUartStopBits[DebugPort]        = 1;
+      Fspscfg->SerialIoUartAutoFlow[DebugPort]        = 0;
+      Fspscfg->SerialIoUartPowerGating[DebugPort]     = 0;
+      Fspscfg->SerialIoUartDmaEnable[DebugPort]       = 1;
     }
 
     // PCH I2C_CONFIG
