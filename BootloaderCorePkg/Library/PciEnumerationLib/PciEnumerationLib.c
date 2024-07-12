@@ -18,7 +18,7 @@
 #include "PciAri.h"
 #include "PciIov.h"
 
-#define  DEBUG_PCI_ENUM    0
+#define  DEBUG_PCI_ENUM    1
 
 UINT8   *mPoolPtr;
 
@@ -728,7 +728,7 @@ PciSearchDevice (
   }
 #if DEBUG_PCI_ENUM
   DEBUG ((
-           DEBUG_INFO,
+           DEBUG_INIT,
            "PciBus: Discovered %s @ [%02x|%02x|%02x]\n",
            IS_PCI_BRIDGE (Pci) ?     L"PPB" :
            IS_CARDBUS_BRIDGE (Pci) ? L"P2C" :
@@ -1376,19 +1376,19 @@ DumpResourceBar (
   Address = PciIoDevice->Address;
   Indent[ (Level << 1) + 1] = 0;
   if ((Address & BIT31) != 0) {
-    DEBUG ((DEBUG_INFO, "PCI HOST: Bus(0x%02X-%02X)\n",
+    DEBUG ((DEBUG_INIT, "PCI HOST: Bus(0x%02X-%02X)\n",
       PciIoDevice->BusNumberRanges.BusBase,
       PciIoDevice->BusNumberRanges.BusLimit));
   } else {
-    DEBUG ((DEBUG_INFO, "%aPCI(%02X,%02X,%02X)\n", Indent, (Address >> 20) & 0xFF, (Address >> 15) & 0x1F,
+    DEBUG ((DEBUG_INIT, "%aPCI(%02X,%02X,%02X)\n", Indent, (Address >> 20) & 0xFF, (Address >> 15) & 0x1F,
             (Address >> 12) & 0x07));
     if (FeaturePcdGet (PcdAriSupport) && (PciIoDevice->AriCapabilityOffset != 0)) {
-      DEBUG ((DEBUG_INFO, "%aARI: forwarding enabled for PPB[%02x:%02x:%02x]\n",
+      DEBUG ((DEBUG_INIT, "%aARI: forwarding enabled for PPB[%02x:%02x:%02x]\n",
         Indent,
         (PciIoDevice->Parent->Address >> 20) & 0xFF,
         (PciIoDevice->Parent->Address >> 15) & 0x1F,
         (PciIoDevice->Parent->Address >> 12) & 0x07));
-      DEBUG ((DEBUG_INFO, "%aARI: CapOffset = 0x%X\n",
+      DEBUG ((DEBUG_INIT, "%aARI: CapOffset = 0x%X\n",
         Indent, PciIoDevice->AriCapabilityOffset));
     }
   }
@@ -1396,39 +1396,39 @@ DumpResourceBar (
     //
     // Dump BAR0/1 also for a PPB
     //
-    DEBUG ((DEBUG_INFO, "%a  PPB BAR0/1\n", Indent));
+    DEBUG ((DEBUG_INIT, "%a  PPB BAR0/1\n", Indent));
     for (Idx = 0; Idx < PPB_MAX_BAR; Idx++) {
       if (PciIoDevice->PpbBar[Idx].Length == 0) {
         continue;
       }
-      DEBUG ((DEBUG_INFO, "%a  BAR[%d].TYP = %d\n", Indent,  Idx, PciIoDevice->PpbBar[Idx].BarType));
-      DEBUG ((DEBUG_INFO, "%a  BAR[%d].OFF = 0x%02X\n", Indent,  Idx, PciIoDevice->PpbBar[Idx].Offset));
-      DEBUG ((DEBUG_INFO, "%a  BAR[%d].BAS = %016lX", Indent,  Idx, PciIoDevice->PpbBar[Idx].BaseAddress));
-      DEBUG ((DEBUG_INFO, "  BAR[%d].LEN = %016lX",   Idx, PciIoDevice->PpbBar[Idx].Length));
-      DEBUG ((DEBUG_INFO, "  BAR[%d].ALN = %016lX\n", Idx, PciIoDevice->PpbBar[Idx].Alignment));
+      DEBUG ((DEBUG_INIT, "%a  BAR[%d].TYP = %d\n", Indent,  Idx, PciIoDevice->PpbBar[Idx].BarType));
+      DEBUG ((DEBUG_INIT, "%a  BAR[%d].OFF = 0x%02X\n", Indent,  Idx, PciIoDevice->PpbBar[Idx].Offset));
+      DEBUG ((DEBUG_INIT, "%a  BAR[%d].BAS = %016lX", Indent,  Idx, PciIoDevice->PpbBar[Idx].BaseAddress));
+      DEBUG ((DEBUG_INIT, "  BAR[%d].LEN = %016lX",   Idx, PciIoDevice->PpbBar[Idx].Length));
+      DEBUG ((DEBUG_INIT, "  BAR[%d].ALN = %016lX\n", Idx, PciIoDevice->PpbBar[Idx].Alignment));
     }
-    DEBUG ((DEBUG_INFO, "%a  PPB APPERTURE\n", Indent));
+    DEBUG ((DEBUG_INIT, "%a  PPB APPERTURE\n", Indent));
   }
   for (Idx = 0; Idx < PCI_MAX_BAR; Idx++) {
     if (PciIoDevice->PciBar[Idx].Length == 0) {
       continue;
     }
-    DEBUG ((DEBUG_INFO, "%a  BAR[%d].TYP = %d\n", Indent,  Idx, PciIoDevice->PciBar[Idx].BarType));
-    DEBUG ((DEBUG_INFO, "%a  BAR[%d].OFF = 0x%02X\n", Indent,  Idx, PciIoDevice->PciBar[Idx].Offset));
-    DEBUG ((DEBUG_INFO, "%a  BAR[%d].BAS = %016lX", Indent,  Idx, PciIoDevice->PciBar[Idx].BaseAddress));
-    DEBUG ((DEBUG_INFO, "  BAR[%d].LEN = %016lX",   Idx, PciIoDevice->PciBar[Idx].Length));
-    DEBUG ((DEBUG_INFO, "  BAR[%d].ALN = %016lX\n", Idx, PciIoDevice->PciBar[Idx].Alignment));
+    DEBUG ((DEBUG_INIT, "%a  BAR[%d].TYP = %d\n", Indent,  Idx, PciIoDevice->PciBar[Idx].BarType));
+    DEBUG ((DEBUG_INIT, "%a  BAR[%d].OFF = 0x%02X\n", Indent,  Idx, PciIoDevice->PciBar[Idx].Offset));
+    DEBUG ((DEBUG_INIT, "%a  BAR[%d].BAS = %016lX", Indent,  Idx, PciIoDevice->PciBar[Idx].BaseAddress));
+    DEBUG ((DEBUG_INIT, "  BAR[%d].LEN = %016lX",   Idx, PciIoDevice->PciBar[Idx].Length));
+    DEBUG ((DEBUG_INIT, "  BAR[%d].ALN = %016lX\n", Idx, PciIoDevice->PciBar[Idx].Alignment));
   }
   if (FeaturePcdGet (PcdSrIovSupport)) {
     for (Idx = 0; Idx < PCI_MAX_BAR; Idx++) {
       if (PciIoDevice->VfPciBar[Idx].Length == 0) {
         continue;
       }
-      DEBUG ((DEBUG_INFO, "%a  VFBAR[%d].TYP = %d\n", Indent,  Idx, PciIoDevice->VfPciBar[Idx].BarType));
-      DEBUG ((DEBUG_INFO, "%a  VFBAR[%d].OFF = 0x%02X\n", Indent,  Idx, PciIoDevice->VfPciBar[Idx].Offset));
-      DEBUG ((DEBUG_INFO, "%a  VFBAR[%d].BAS = %016lX", Indent,  Idx, PciIoDevice->VfPciBar[Idx].BaseAddress));
-      DEBUG ((DEBUG_INFO, "  VFBAR[%d].LEN = %016lX",   Idx, PciIoDevice->VfPciBar[Idx].Length));
-      DEBUG ((DEBUG_INFO, "  VFBAR[%d].ALN = %016lX\n", Idx, PciIoDevice->VfPciBar[Idx].Alignment));
+      DEBUG ((DEBUG_INIT, "%a  VFBAR[%d].TYP = %d\n", Indent,  Idx, PciIoDevice->VfPciBar[Idx].BarType));
+      DEBUG ((DEBUG_INIT, "%a  VFBAR[%d].OFF = 0x%02X\n", Indent,  Idx, PciIoDevice->VfPciBar[Idx].Offset));
+      DEBUG ((DEBUG_INIT, "%a  VFBAR[%d].BAS = %016lX", Indent,  Idx, PciIoDevice->VfPciBar[Idx].BaseAddress));
+      DEBUG ((DEBUG_INIT, "  VFBAR[%d].LEN = %016lX",   Idx, PciIoDevice->VfPciBar[Idx].Length));
+      DEBUG ((DEBUG_INIT, "  VFBAR[%d].ALN = %016lX\n", Idx, PciIoDevice->VfPciBar[Idx].Alignment));
     }
   }
 
@@ -1500,17 +1500,17 @@ DumpPciRootBridgeInfoHob (
     &gLoaderPciRootBridgeInfoGuid);
 
   if (RootBridgeInfoHob != NULL) {
-    DEBUG ((DEBUG_INFO, "PciRootBridgeInfoHob: Rev 0x%X, Count 0x%X\n",
+    DEBUG ((DEBUG_INIT, "PciRootBridgeInfoHob: Rev 0x%X, Count 0x%X\n",
       RootBridgeInfoHob->Revision, RootBridgeInfoHob->Count));
 
     for (Count = 0; Count < RootBridgeInfoHob->Count; Count++) {
-      DEBUG ((DEBUG_INFO, "Bus(0x%02X-%02X)\n",
+      DEBUG ((DEBUG_INIT, "Bus(0x%02X-%02X)\n",
         RootBridgeInfoHob->Entry[Count].BusBase,
         RootBridgeInfoHob->Entry[Count].BusLimit));
 
       for (Index = 0; Index < PCI_MAX_BAR; Index++) {
         if (RootBridgeInfoHob->Entry[Count].Resource[Index].ResLength > 0) {
-          DEBUG ((DEBUG_INFO, "  BarType-%d: Base 0x%016lX Length 0x%016lX\n",
+          DEBUG ((DEBUG_INIT, "  BarType-%d: Base 0x%016lX Length 0x%016lX\n",
             Index + 1,
             RootBridgeInfoHob->Entry[Count].Resource[Index].ResBase,
             RootBridgeInfoHob->Entry[Count].Resource[Index].ResLength));
@@ -1536,13 +1536,13 @@ DumpPciResAllocTable (
   GetPciResourceAllocTable (&ResAllocTable);
   ASSERT (ResAllocTable != NULL);
 
-  DEBUG ((DEBUG_INFO, "DumpPciResAllocTable: NumOfEntries %X\n", ResAllocTable->NumOfEntries));
+  DEBUG ((DEBUG_INIT, "DumpPciResAllocTable: NumOfEntries %X\n", ResAllocTable->NumOfEntries));
   for (Index = 0; Index < ResAllocTable->NumOfEntries; Index++) {
     ResRange = &ResAllocTable->ResourceRange[Index];
-    DEBUG ((DEBUG_INFO, "Bus   : %X - %X\n", ResRange->BusBase, ResRange->BusLimit));
-    DEBUG ((DEBUG_INFO, " Io   : %X - %X\n", ResRange->IoBase, ResRange->IoLimit));
-    DEBUG ((DEBUG_INFO, " Mem32: %X - %X\n", ResRange->Mmio32Base, ResRange->Mmio32Limit));
-    DEBUG ((DEBUG_INFO, " Mem64: %llX - %llX\n", ResRange->Mmio64Base, ResRange->Mmio64Limit));
+    DEBUG ((DEBUG_INIT, "Bus   : %X - %X\n", ResRange->BusBase, ResRange->BusLimit));
+    DEBUG ((DEBUG_INIT, " Io   : %X - %X\n", ResRange->IoBase, ResRange->IoLimit));
+    DEBUG ((DEBUG_INIT, " Mem32: %X - %X\n", ResRange->Mmio32Base, ResRange->Mmio32Limit));
+    DEBUG ((DEBUG_INIT, " Mem64: %llX - %llX\n", ResRange->Mmio64Base, ResRange->Mmio64Limit));
   }
 }
 #endif
@@ -1909,7 +1909,7 @@ PciEnumeration (
   DumpPciResAllocTable ();
   DumpPciResources (RootBridges);
   DumpPciRootBridgeInfoHob ();
-  DEBUG ((DEBUG_INFO, "MEM Pool Used: 0x%08X\n", (UINT32)(UINTN)GetAllocationPool() - (UINT32)(UINTN)MemPool));
+  DEBUG ((DEBUG_INIT, "MEM Pool Used: 0x%08X\n", (UINT32)(UINTN)GetAllocationPool() - (UINT32)(UINTN)MemPool));
 #endif
 
   // Free memory pool
