@@ -948,7 +948,7 @@ class Build(object):
             fo.write(fmaphdr)
 
         # Patch microcode base in FSP-T UPD
-        if self._board.HAVE_FSP_BIN and self._board.TOP_SWAP_SIZE > 0:
+        if self._board.HAVE_FSP_BIN:
             fspt_bin = os.path.join(self._fv_dir, 'FSP_T.bin')
             upd_sig  = get_fsp_upd_signature (fspt_bin)
             upd_off  = bins.find (upd_sig, self._board.STAGE1A_FV_OFFSET)
@@ -1080,7 +1080,7 @@ class Build(object):
                     comp_file = os.path.splitext(comp_name)[0] + '.pad'
 
             image_base = self._board.FLASH_LAYOUT_START
-            comp_name  = comp_name.replace ('TOP_SWAP_B.', 'TOP_SWAP_A.')
+            #comp_name  = comp_name.replace ('TOP_SWAP_B.', 'TOP_SWAP_A.')
 
             if comp_name in rgn_name_list:
                 idx = rgn_name_list.index(comp_name)

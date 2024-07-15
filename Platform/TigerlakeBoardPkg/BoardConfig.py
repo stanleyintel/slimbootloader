@@ -166,8 +166,7 @@ class Board(BaseBoard):
         self.FWUPDATE_SIZE        = 0x00020000 if self.ENABLE_FWU else 0
         self.OS_LOADER_FD_NUMBLK  = self.OS_LOADER_FD_SIZE // self.FLASH_BLOCK_SIZE
 
-        self.TOP_SWAP_SIZE        = 0x080000
-        self.REDUNDANT_SIZE       = 0x360000
+        self.REDUNDANT_SIZE       = 0x3E0000
 
         self.SIIPFW_SIZE = 0x1000
         self.ENABLE_TCC  = 0
@@ -198,7 +197,7 @@ class Board(BaseBoard):
         # Default value in UEFI BIOS (32MB IFWI): 0xC00000
         self.SLIMBOOTLOADER_SIZE  = 0xAD0000
         self.NON_REDUNDANT_SIZE   = self.SLIMBOOTLOADER_SIZE - \
-                                    (self.TOP_SWAP_SIZE + self.REDUNDANT_SIZE) * 2 - \
+                                    self.REDUNDANT_SIZE * 2 - \
                                     self.NON_VOLATILE_SIZE
         Non_Redundant_Components_Size = self.PAYLOAD_SIZE + self.EPAYLOAD_SIZE + self.MRCDATA_SIZE + \
                                         self.UEFI_VARIABLE_SIZE + self.VARIABLE_SIZE + self.SIIPFW_SIZE
@@ -431,6 +430,9 @@ class Board(BaseBoard):
                     ('CFGDATA.bin'  , ''         , self.CFGDATA_SIZE,  STITCH_OPS.MODE_FILE_PAD | cfg_flag, STITCH_OPS.MODE_POS_TAIL),
                     ('KEYHASH.bin'  , ''         , self.KEYHASH_SIZE,  STITCH_OPS.MODE_FILE_PAD, STITCH_OPS.MODE_POS_TAIL),
                     ('STAGE1B_A.fd' ,  ''        , self.STAGE1B_SIZE,  STITCH_OPS.MODE_FILE_PAD, STITCH_OPS.MODE_POS_TAIL),
+                    ('ACM.bin',         '',     self.ACM_SIZE,      STITCH_OPS.MODE_FILE_NOP | acm_flag,  STITCH_OPS.MODE_POS_TAIL),
+                    ('DIAGNOSTICACM.bin',        '',     self.DIAGNOSTICACM_SIZE,     STITCH_OPS.MODE_FILE_NOP | diagnosticacm_flag, STITCH_OPS.MODE_POS_TAIL),
+                    ('STAGE1A_A.fd',    '',     self.STAGE1A_SIZE,  STITCH_OPS.MODE_FILE_NOP,             STITCH_OPS.MODE_POS_TAIL),
                     ]
                 ),
 
@@ -441,18 +443,9 @@ class Board(BaseBoard):
                     ('CFGDATA.bin'  , ''         , self.CFGDATA_SIZE,  STITCH_OPS.MODE_FILE_PAD | cfg_flag, STITCH_OPS.MODE_POS_TAIL),
                     ('KEYHASH.bin'  , ''         , self.KEYHASH_SIZE,  STITCH_OPS.MODE_FILE_PAD, STITCH_OPS.MODE_POS_TAIL),
                     ('STAGE1B_B.fd' ,  ''        , self.STAGE1B_SIZE,  STITCH_OPS.MODE_FILE_PAD, STITCH_OPS.MODE_POS_TAIL),
-                    ]
-                ),
-                ('TOP_SWAP_A.bin', [
                     ('ACM.bin',         '',     self.ACM_SIZE,      STITCH_OPS.MODE_FILE_NOP | acm_flag,  STITCH_OPS.MODE_POS_TAIL),
                     ('DIAGNOSTICACM.bin',        '',     self.DIAGNOSTICACM_SIZE,     STITCH_OPS.MODE_FILE_NOP | diagnosticacm_flag, STITCH_OPS.MODE_POS_TAIL),
                     ('STAGE1A_A.fd',    '',     self.STAGE1A_SIZE,  STITCH_OPS.MODE_FILE_NOP,             STITCH_OPS.MODE_POS_TAIL),
-                    ]
-                ),
-                ('TOP_SWAP_B.bin', [
-                    ('ACM.bin',         '',     self.ACM_SIZE,      STITCH_OPS.MODE_FILE_NOP | acm_flag,  STITCH_OPS.MODE_POS_TAIL),
-                    ('DIAGNOSTICACM.bin',        '',     self.DIAGNOSTICACM_SIZE,     STITCH_OPS.MODE_FILE_NOP | diagnosticacm_flag, STITCH_OPS.MODE_POS_TAIL),
-                    ('STAGE1A_B.fd',    '',     self.STAGE1A_SIZE,  STITCH_OPS.MODE_FILE_NOP,             STITCH_OPS.MODE_POS_TAIL),
                     ]
                 ),
                 ('SlimBootloader.bin', [
@@ -460,8 +453,6 @@ class Board(BaseBoard):
                     ('NON_REDUNDANT.bin' , '' , self.NON_REDUNDANT_SIZE, STITCH_OPS.MODE_FILE_PAD, STITCH_OPS.MODE_POS_HEAD),
                     ('REDUNDANT_B.bin'   , '' , self.REDUNDANT_SIZE,     STITCH_OPS.MODE_FILE_PAD, STITCH_OPS.MODE_POS_HEAD),
                     ('REDUNDANT_A.bin'   , '' , self.REDUNDANT_SIZE,     STITCH_OPS.MODE_FILE_PAD, STITCH_OPS.MODE_POS_HEAD),
-                    ('TOP_SWAP_B.bin'    , '' , self.TOP_SWAP_SIZE,      STITCH_OPS.MODE_FILE_PAD, STITCH_OPS.MODE_POS_HEAD),
-                    ('TOP_SWAP_A.bin'    , '' , self.TOP_SWAP_SIZE,      STITCH_OPS.MODE_FILE_PAD, STITCH_OPS.MODE_POS_HEAD),
                     ]
                 ),
         ])
