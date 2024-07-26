@@ -195,7 +195,7 @@ class Board(BaseBoard):
         # The info can be found in the 'RomSize' of Outputs/tgl/FlashMap.txt
         # Max size for 16MB IFWI: 0xAD8000
         # Default value in UEFI BIOS (32MB IFWI): 0xC00000
-        self.SLIMBOOTLOADER_SIZE  = 0xAD0000
+        self.SLIMBOOTLOADER_SIZE  = 0xC00000
         self.NON_REDUNDANT_SIZE   = self.SLIMBOOTLOADER_SIZE - \
                                     self.REDUNDANT_SIZE * 2 - \
                                     self.NON_VOLATILE_SIZE
