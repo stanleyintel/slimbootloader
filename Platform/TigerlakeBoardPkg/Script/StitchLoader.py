@@ -54,7 +54,7 @@ def add_platform_data (bios_data, platform_data = None):
             return None
 
         for part in range(2):
-          path = 'IFWI/BIOS/TS%d/SG1A' % part
+          path = 'IFWI/BIOS/RD%d/SG1A' % part
           stage1A = ifwi_parser.locate_component (bios, path)
           if stage1A:
               plat_data_offset = stage1A.offset + stage1A.length - 12
