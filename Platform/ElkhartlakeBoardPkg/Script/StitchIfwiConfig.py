@@ -204,6 +204,7 @@ def get_xml_change_list (platform, plt_params_list, stitch_dir):
       ('./FlexIO/UfsConfiguration/UfsController1',                                 'X1'),
       ('./FlexIO/UfsConfiguration/Ufsx2En',                                        'No'),
       ('./FlexIO/UfsConfiguration/MmpUfsx2En',                                     'No'),
+      ('./FlexIO//PowerDelivery_PdControllerConfiguration/PdMode',                 'No'),
       ('./PlatformProtection/IntelPttConfiguration/Rsa1KSupport',                           'Disabled'),
       ('./NetworkingConnectivity/TimeSensitiveNetworkingConfiguration/TsnEnabled',          'TSN Disabled'),
       ('./NetworkingConnectivity/TimeSensitiveNetworkingConfiguration/SgmiHost0',           'Disabled'),

@@ -1378,7 +1378,7 @@ UpdateFspConfig (
     Fspscfg->TcssAuxOri                 = SiCfgData->TcssAuxOri;
     Fspscfg->TcssHslOri                 = SiCfgData->TcssHslOri;
     Fspscfg->VccSt                      = SiCfgData->VccSt;
-    Fspscfg->PmcPdEnable                = 1;//SiCfgData->PmcPdEnable;
+    Fspscfg->PmcPdEnable                = 0;//SiCfgData->PmcPdEnable;
     Fspscfg->D3HotEnable                = SiCfgData->D3HotEnable;
     Fspscfg->D3ColdEnable               = SiCfgData->D3ColdEnable;
 
