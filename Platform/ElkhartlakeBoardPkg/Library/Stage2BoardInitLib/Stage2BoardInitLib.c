@@ -741,6 +741,7 @@ BoardInit (
     GpioLockPads();
     // Prepare platform ACPI tables
     Status = PcdSet32S (PcdAcpiTableTemplatePtr, (UINT32)(UINTN)mPlatformAcpiTables);
+    DEBUG((DEBUG_INFO, "ieh val @PreSiliconInit = %x\n", PciRead32 (PCI_LIB_ADDRESS (0, 16, 5, 0))));
     break;
   case PostSiliconInit:
     if (IsWdtFlagsSet(WDT_FLAG_TCC_DSO_IN_PROGRESS)) {
@@ -773,8 +774,10 @@ BoardInit (
     if (FeaturePcdGet (PcdSmbiosEnabled)) {
       InitializeSmbiosInfo ();
     }
+    DEBUG((DEBUG_INFO, "ieh val @PostSiliconInit = %x\n", PciRead32 (PCI_LIB_ADDRESS (0, 16, 5, 0))));
     break;
   case PrePciEnumeration:
+    DEBUG((DEBUG_INFO, "ieh val @PrePciEnumeration = %x\n", PciRead32 (PCI_LIB_ADDRESS (0, 16, 5, 0))));
     break;
   case PostPciEnumeration:
     // Set pre-OS checker features flag
