@@ -85,6 +85,10 @@ ShellCommandResetFunc (
 
   if (ResetType == EfiResetShutdown) {
     ShellPrint (L"Start shutdowning...\n");
+  } else if (ResetType == EfiResetCold) {
+    ShellPrint (L"@@@Resetting cold...\n");
+  } else if (ResetType == EfiResetWarm) {
+    ShellPrint (L"@@@Resetting warm...\n");
   } else {
     ShellPrint (L"Resetting...\n");
   }

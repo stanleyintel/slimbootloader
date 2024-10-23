@@ -559,7 +559,7 @@ Shell (
   EFI_STATUS  Status;
   BOOLEAN     Start;
   UINTN       Index;
-  UINTN       Index1;
+  // UINTN       Index1;
   SHELL       Shell;
   UINT8       Buffer;
 
@@ -579,6 +579,8 @@ Shell (
     }
     for (Index = Timeout; Index > 0; Index--) {
       ShellPrint (L"Press any key within %d second(s) to enter the command shell", Index);
+      Start = 1;
+#if 0
       for (Index1 = 0; Index1 < 10; Index1++) {
         Start = ConsolePoll ();
         if (Start) {
@@ -586,6 +588,7 @@ Shell (
         }
         MicroSecondDelay (100 * 1000);
       }
+#endif
       ShellPrint(L"\r");
       if (Start) {
         break;
@@ -599,6 +602,9 @@ Shell (
   }
 
   HistoryInit (&Shell, TRUE);
+
+  ShellCommandUsbDev.Entry(&Shell, 0, NULL);
+  ShellCommandReset.Entry(&Shell, 0, NULL); // default is to cold reset
 
   while (! (Shell.ShouldExit)) {
     ShellPrompt (&Shell);
