@@ -170,7 +170,7 @@ class Board(BaseBoard):
         self.REDUNDANT_SIZE       = 0x360000
 
         self.SIIPFW_SIZE = 0x1000
-        self.ENABLE_TCC  = 0
+        self.ENABLE_TCC  = 1
 
         self.ENABLE_PRE_OS_CHECKER = 0
         if self.ENABLE_PRE_OS_CHECKER:
@@ -255,6 +255,8 @@ class Board(BaseBoard):
                 # Enable TSN in dlt file
                 if self.ENABLE_TSN:
                     lines += open (os.path.join(brd_cfg_src_dir, 'CfgData_Tsn_Feature.dlt')).read()
+                if self.ENABLE_TCC:
+                    lines += open (os.path.join(brd_cfg_src_dir, 'CfgData_Tcc_Feature.dlt')).read()
 
                 # Write to generated final dlt file
                 output_cfg_dlt_file = os.path.join(build._fv_dir, dlt_file)

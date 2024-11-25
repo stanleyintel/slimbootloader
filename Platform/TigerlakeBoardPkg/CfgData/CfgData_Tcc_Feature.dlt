@@ -19,6 +19,7 @@ TCC_CFG_DATA.TccErrorLog | 1
 # Enable Timed GPIO
 SILICON_CFG_DATA.EnableTimedGpio0 | 1
 SILICON_CFG_DATA.EnableTimedGpio1 | 1
+SILICON_CFG_DATA.CpuPcieRpAspm  | {0, 0, 0, 0}
 
 # Enable RTCM from the boot option
 BOOT_OPTION_CFG_DATA_0.BootFlags_0 | 24
