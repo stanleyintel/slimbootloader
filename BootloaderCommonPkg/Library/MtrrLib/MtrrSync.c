@@ -132,6 +132,18 @@ GetCpuMtrrs (
     return EFI_OUT_OF_RESOURCES;
   }
 
+  // demo: append 0x60000000 to 0x70000000 for WB
+  {
+    UINT64 base;
+    UINT64 mask;
+    base = 0x60000000 | 0x6; // for WB
+    mask = 0x7FF0000000 | BIT11; // 
+    MsrIdx = MSR_IA32_MTRR_PHYSBASE0 + (7 << 1);
+    AsmWriteMsr64 (MsrIdx, base);
+    AsmWriteMsr64 (MsrIdx + 1, mask);
+  }
+  
+
   VariableSettings = &MtrrSetting->Variables;
   for (Index = 0; Index < VariableMtrrCount; Index++) {
     MsrIdx = MSR_IA32_MTRR_PHYSBASE0 + (Index << 1);
