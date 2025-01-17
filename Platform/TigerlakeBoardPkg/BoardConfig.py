@@ -55,8 +55,9 @@ class Board(BaseBoard):
         self.ACPI_PM_TIMER_BASE     = 0x1808
         self.LOADER_ACPI_RECLAIM_MEM_SIZE = 0x000090000
 
-        self.FLASH_BASE_ADDRESS   = 0xFF000000
-        self.FLASH_BASE_SIZE      = (self.FLASH_LAYOUT_START - self.FLASH_BASE_ADDRESS)
+        #self.FLASH_BASE_ADDRESS   = 0xFF000000
+        self.FLASH_BASE_SIZE      = 0x02000000 # (self.FLASH_LAYOUT_START - self.FLASH_BASE_ADDRESS)
+        self.FLASH_BASE_ADDRESS   = (self.FLASH_LAYOUT_START - self.FLASH_BASE_SIZE)
 
         self.HAVE_FIT_TABLE       = 1
         self.HAVE_VBT_BIN         = 1
@@ -185,12 +186,13 @@ class Board(BaseBoard):
         Redundant_Components_Size = self.UCODE_SIZE + self.STAGE2_SIZE + self.STAGE1B_SIZE + self.FWUPDATE_SIZE + self.CFGDATA_SIZE + self.KEYHASH_SIZE
         if Redundant_Components_Size > self.REDUNDANT_SIZE:
             raise Exception ('Redundant region size 0x%x is smaller than required components size 0x%x!' % (self.REDUNDANT_SIZE, Redundant_Components_Size))
-        self.NON_VOLATILE_SIZE    = 0x001000
+        self.NON_VOLATILE_SIZE    = 0x201000
         # For firmware update, please keep SLIMBOOTLOADER_SIZE unchanged!
         # The info can be found in the 'RomSize' of Outputs/tgl/FlashMap.txt
         # Max size for 16MB IFWI: 0xAD8000
         # Default value in UEFI BIOS (32MB IFWI): 0xC00000
-        self.SLIMBOOTLOADER_SIZE  = 0xAD0000
+        self.SLIMBOOTLOADER_SIZE  = 0x1800000 # 0xAD0000
+        #self.SLIMBOOTLOADER_SIZE  = 0xAD0000
         self.NON_REDUNDANT_SIZE   = self.SLIMBOOTLOADER_SIZE - \
                                     (self.TOP_SWAP_SIZE + self.REDUNDANT_SIZE) * 2 - \
                                     self.NON_VOLATILE_SIZE
@@ -400,9 +402,12 @@ class Board(BaseBoard):
         img_list.extend ([
                 ('NON_VOLATILE.bin', [
                     ('SBLRSVD.bin',    ''        , self.SBLRSVD_SIZE,  STITCH_OPS.MODE_FILE_NOP, STITCH_OPS.MODE_POS_TAIL),
+                    ('User.bin'   ,  ''   , 0x200000,    STITCH_OPS.MODE_FILE_PAD, STITCH_OPS.MODE_POS_TAIL),
                     ]
                 ),
                 ('NON_REDUNDANT.bin', [
+                    ('User.bin'   ,  ''   , 0x1ff000,    STITCH_OPS.MODE_FILE_PAD, STITCH_OPS.MODE_POS_TAIL),
+                    ('Dummy.bin'   ,  ''   , 0xBAB000,    STITCH_OPS.MODE_FILE_PAD, STITCH_OPS.MODE_POS_TAIL),
                     ('SIIPFW.bin'   ,  ''        , self.SIIPFW_SIZE,   STITCH_OPS.MODE_FILE_PAD, STITCH_OPS.MODE_POS_TAIL),
                     ('VARIABLE.bin',     '',       self.VARIABLE_SIZE, STITCH_OPS.MODE_FILE_NOP, STITCH_OPS.MODE_POS_TAIL),
                     ('UEFIVARIABLE.bin', '',       self.UEFI_VARIABLE_SIZE,  STITCH_OPS.MODE_FILE_NOP, STITCH_OPS.MODE_POS_TAIL),

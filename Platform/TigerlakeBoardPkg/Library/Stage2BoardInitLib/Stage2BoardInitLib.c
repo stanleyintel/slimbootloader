@@ -318,6 +318,8 @@ CONST EFI_ACPI_COMMON_HEADER *mPlatformAcpiTables[] = {
   NULL
 };
 
+VOID doit ();
+
 VOID
 EnableLegacyRegions (
   VOID
@@ -837,6 +839,28 @@ IgdOpRegionPlatformInit (
   }
 }
 
+VOID
+doit2 ()
+{
+  UINT32 *addr;
+  addr = (UINT32 *)0xfd882234;
+  DEBUG((DEBUG_INFO, "@@@@ DMIC.SRL=%x\n", *addr));
+
+  PciAnd16(PCI_LIB_ADDRESS(0, 0x1F, 5, 0x4), (UINT16)~(BIT1));
+  PciWrite32(PCI_LIB_ADDRESS(0, 0x1F, 5, 0xE0), 0xF8000000);
+  PciAndThenOr32(PCI_LIB_ADDRESS(0, 0x1F, 5, 0xDC), (UINT32)~(0x7FFF << 12),(UINT32) (1<<24));
+  PciOr32(PCI_LIB_ADDRESS(0, 0x1F, 5, 0xDC), (UINT32) BIT27);
+  PciOr16(PCI_LIB_ADDRESS(0, 0x1F, 5, 0x4), (UINT16) BIT1);
+
+  addr = (UINT32 *)0xfd88277c;
+  *addr = 0xF9FFF800;
+  DEBUG((DEBUG_INFO, "@@@@ GPMR1=%x\n", *addr));
+
+  addr = (UINT32 *)0xfd882780;
+  *addr = 0x800023A8;
+  DEBUG((DEBUG_INFO, "@@@@ GPMR1DID=%x\n", *addr));
+}
+
 /**
   Do board specific init based on phase indication
 
@@ -901,6 +925,7 @@ BoardInit (
       VariableConstructor (RgnBase, RgnSize);
     }
 
+    doit();
     // Prepare platform ACPI tables
     Status = PcdSet32S (PcdAcpiTableTemplatePtr, (UINT32)(UINTN)mPlatformAcpiTables);
     break;
@@ -951,6 +976,7 @@ BoardInit (
     }
     break;
   case PostPciEnumeration:
+    doit2 ();
     if (FeaturePcdGet (PcdEnablePciePm)) {
       PciePmConfig ();
     }
@@ -1309,6 +1335,12 @@ UpdateFspConfig (
   UINT8                HdaVerbTableNum;
   FspsUpd    = (FSPS_UPD *)FspsUpdPtr;
   FspsConfig = &FspsUpd->FspsConfig;
+
+/* * /
+  FspsConfig->PchSpiExtendedBiosDecodeRangeEnable = 1;
+  FspsConfig->PchSpiExtendedBiosDecodeRangeBase =  0xF8000000;
+  FspsConfig->PchSpiExtendedBiosDecodeRangeLimit = 0xF9FFFFFF;
+/ * */
 
   // SGX is not supported on this platform. Do not change these two lines.
   FspsConfig->SgxEpoch0           = 0x553DFD8D5FA48F27;
@@ -3028,5 +3060,128 @@ PlatformUpdateAcpiGnvs (
   if (mTccDsoTuning) {
     PlatformNvs->Rtd3Support     = mTccRtd3Support;
   }
+}
+
+
+SPI_FLASH_SERVICE   *mFwuSpiService = NULL;
+
+VOID
+EFIAPI
+InitializeBootMedia(
+  VOID
+  )
+{
+  mFwuSpiService = (SPI_FLASH_SERVICE *)GetServiceBySignature (SPI_FLASH_SERVICE_SIGNATURE);
+  if (mFwuSpiService == NULL) {
+    return;
+  }
+
+  mFwuSpiService->SpiInit ();
+}
+
+
+EFI_STATUS
+EFIAPI
+BootMediaRead (
+  IN     UINT64   Address,
+  IN     UINT32   ByteCount,
+  OUT    UINT8    *Buffer
+  )
+{
+  return mFwuSpiService->SpiRead (FlashRegionBios, (UINT32)Address, ByteCount, Buffer);
+}
+
+EFI_STATUS
+EFIAPI
+BootMediaGetRegion (
+  IN     FLASH_REGION_TYPE  FlashRegionType,
+  OUT    UINT32             *BaseAddress, OPTIONAL
+  OUT    UINT32             *RegionSize OPTIONAL
+  )
+{
+  return mFwuSpiService->SpiGetRegion (FlashRegionType, BaseAddress, RegionSize);
+}
+
+
+VOID doit ()
+{
+  UINT32        RsvdBase;
+  UINT32        RsvdSize;
+  FLASH_MAP     *FlashMap;
+  EFI_STATUS    Status;
+  UINT32        BiosRgnSize;
+
+
+  //
+  // Initialize boot media to look for the capsule image
+  //
+  InitializeBootMedia ();
+
+  //
+  // Get flash map pointer
+  //
+  FlashMap = GetFlashMapPtr();
+  if (FlashMap == NULL) {
+    DEBUG((DEBUG_ERROR, "@@@ Could not get flash map\n"));
+    Status = EFI_NO_MAPPING;
+    goto EndOfFwu;
+  }
+
+  //
+  // Get bootloader reserved region base and size
+  //
+
+  Status = BootMediaGetRegion (FlashRegionBios, NULL, &BiosRgnSize);
+  if (!EFI_ERROR (Status)) {
+    DEBUG((DEBUG_INFO, "@@@ BIOS Region Size: 0x%08X\n", BiosRgnSize));
+    DEBUG((DEBUG_INFO, "@@@ SBL  ROM    Size: 0x%08X\n", FlashMap->RomSize));
+    if (BiosRgnSize < FlashMap->RomSize) {
+      DEBUG((DEBUG_INFO, "@@@ error\n"));
+      Status = EFI_ABORTED;
+    }
+  }
+  UINT32 base;
+  UINT8 buf[256];
+
+  Status = GetComponentInfoByPartition (FLASH_MAP_SIG_USER, FALSE, &RsvdBase, &RsvdSize);
+  if (EFI_ERROR (Status)) {
+    DEBUG((DEBUG_ERROR, "@@@@ Could not get component information for USER region\n"));
+  }
+  if (!EFI_ERROR (Status)) {
+    DEBUG((DEBUG_INFO, "@@@ USER region base: 0x%04X\n", RsvdBase));
+    DEBUG((DEBUG_INFO, "@@@ USER region Size: 0x%04X\n", RsvdSize));
+    base = (FlashMap->RomSize - (~RsvdBase + 1));
+    DEBUG((DEBUG_INFO, "@@@ USER base: 0x%04X\n", base));
+  } else {
+    goto test_var;
+  }
+
+  Status = BootMediaRead (base, sizeof(buf), (UINT8 *)buf);
+  if (!EFI_ERROR (Status)) {
+    DEBUG((DEBUG_INFO, "@@@ Dump USER region:\n"));
+    DumpHex(2, 0, sizeof(buf), buf);
+  } else {
+    DEBUG((DEBUG_INFO, "@@@ error BootMediaRead to read USER region\n"));
+  }
+
+test_var:
+  // VAR
+  Status = GetComponentInfoByPartition (FLASH_MAP_SIG_VARIABLE, FALSE, &RsvdBase, &RsvdSize);
+  if (!EFI_ERROR (Status)) {
+    DEBUG((DEBUG_INFO, "@@@ VAR region base: 0x%04X\n", RsvdBase));
+    DEBUG((DEBUG_INFO, "@@@ VAR region Size: 0x%04X\n", RsvdSize));
+  }
+  base = (FlashMap->RomSize - (~RsvdBase + 1));
+  DEBUG((DEBUG_INFO, "@@@ VAR base: 0x%04X\n", base));
+  Status = BootMediaRead (base, sizeof(buf), (UINT8 *)buf);
+  if (!EFI_ERROR (Status)) {
+    DEBUG((DEBUG_INFO, "@@@ Dump VAR region:\n"));
+    DumpHex(2, 0, sizeof(buf), buf);
+  } else {
+    DEBUG((DEBUG_INFO, "@@@ error BootMediaRead to read VAR region\n"));
+  }
+
+EndOfFwu:
+  return;
 }
 

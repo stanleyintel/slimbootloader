@@ -1328,7 +1328,9 @@ class Build(object):
     def post_build(self):
 
         # create bootloader reserved binary of 4K size
-        gen_file_with_size (os.path.join(self._fv_dir, 'SBLRSVD.bin'), 0x1000)
+        gen_file_with_size2 (os.path.join(self._fv_dir, 'SBLRSVD.bin'), 0x1000)
+        gen_file_with_size3 (os.path.join(self._fv_dir, 'User.bin'), 0x1ff000)
+        gen_file_with_size4 (os.path.join(self._fv_dir, 'Dummy.bin'), 0xBAB000)
 
         # create variable region for UEFI payload
         if self._board.UEFI_VARIABLE_SIZE > 0:

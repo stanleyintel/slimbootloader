@@ -179,6 +179,13 @@ def gen_file_from_object (file, object):
 def gen_file_with_size (file, size):
     open (file, 'wb').write(b'\xFF' * size);
 
+def gen_file_with_size2 (file, size):
+    open (file, 'wb').write(bytes([0xA2, 0x2A, 0x0, 0x1] * (int(size/4))));
+def gen_file_with_size3 (file, size):
+    open (file, 'wb').write(bytes([0xA3, 0x3A, 0x0, 0x1] * (int(size/4))));
+def gen_file_with_size4 (file, size):
+    open (file, 'wb').write(bytes([0xA4, 0x4A, 0x0, 0x1] * (int(size/4))));
+
 def check_files_exist (base_name_list, dir = '', ext = ''):
     for each in base_name_list:
         if not os.path.exists (os.path.join (dir, each + ext)):

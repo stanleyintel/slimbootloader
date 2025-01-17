@@ -259,6 +259,8 @@ class FLASH_MAP(Structure):
         "BPM"           : "_BPM",
         "OEMKEY"        : "OEMK",
         "SBLRSVD"       : "RSVD",
+        "User"          : "USER",
+        "Dummy"         : "DUMM",
         "EMPTY"         : "EMTY",
         "UNKNOWN"       : "UNKN",
       }

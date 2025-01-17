@@ -1345,6 +1345,128 @@ RunShell (
   Shell (Timeout);
 }
 
+
+SPI_FLASH_SERVICE   *mFwuSpiService = NULL;
+
+VOID
+EFIAPI
+InitializeBootMedia(
+  VOID
+  )
+{
+  mFwuSpiService = (SPI_FLASH_SERVICE *)GetServiceBySignature (SPI_FLASH_SERVICE_SIGNATURE);
+  if (mFwuSpiService == NULL) {
+    return;
+  }
+
+  mFwuSpiService->SpiInit ();
+}
+
+
+EFI_STATUS
+EFIAPI
+BootMediaRead (
+  IN     UINT64   Address,
+  IN     UINT32   ByteCount,
+  OUT    UINT8    *Buffer
+  )
+{
+  return mFwuSpiService->SpiRead (FlashRegionBios, (UINT32)Address, ByteCount, Buffer);
+}
+
+EFI_STATUS
+EFIAPI
+BootMediaGetRegion (
+  IN     FLASH_REGION_TYPE  FlashRegionType,
+  OUT    UINT32             *BaseAddress, OPTIONAL
+  OUT    UINT32             *RegionSize OPTIONAL
+  )
+{
+  return mFwuSpiService->SpiGetRegion (FlashRegionType, BaseAddress, RegionSize);
+}
+
+
+VOID doit ()
+{
+  UINT32        RsvdBase;
+  UINT32        RsvdSize;
+  FLASH_MAP     *FlashMap;
+  EFI_STATUS    Status;
+  UINT32        BiosRgnSize;
+
+
+  //
+  // Initialize boot media to look for the capsule image
+  //
+  InitializeBootMedia ();
+
+  //
+  // Get flash map pointer
+  //
+  FlashMap = GetFlashMapPtr();
+  if (FlashMap == NULL) {
+    DEBUG((DEBUG_ERROR, "@@@ Could not get flash map\n"));
+    Status = EFI_NO_MAPPING;
+    goto EndOfFwu;
+  }
+
+  //
+  // Get bootloader reserved region base and size
+  //
+
+  Status = BootMediaGetRegion (FlashRegionBios, NULL, &BiosRgnSize);
+  if (!EFI_ERROR (Status)) {
+    DEBUG((DEBUG_INFO, "@@@ BIOS Region Size: 0x%08X\n", BiosRgnSize));
+    DEBUG((DEBUG_INFO, "@@@ SBL  ROM    Size: 0x%08X\n", FlashMap->RomSize));
+    if (BiosRgnSize < FlashMap->RomSize) {
+      DEBUG((DEBUG_INFO, "@@@ error\n"));
+      Status = EFI_ABORTED;
+    }
+  }
+  UINT32 base;
+  UINT8 buf[256];
+
+  Status = GetComponentInfoByPartition (FLASH_MAP_SIG_USER, FALSE, &RsvdBase, &RsvdSize);
+  if (EFI_ERROR (Status)) {
+    DEBUG((DEBUG_ERROR, "@@@@ Could not get component information for USER region\n"));
+  }
+  if (!EFI_ERROR (Status)) {
+    DEBUG((DEBUG_INFO, "@@@ USER region base: 0x%04X\n", RsvdBase));
+    DEBUG((DEBUG_INFO, "@@@ USER region Size: 0x%04X\n", RsvdSize));
+    base = (FlashMap->RomSize - (~RsvdBase + 1));
+    DEBUG((DEBUG_INFO, "@@@ USER base: 0x%04X\n", base));
+  } else {
+    goto test_var;
+  }
+
+  Status = BootMediaRead (base, sizeof(buf), (UINT8 *)buf);
+  if (!EFI_ERROR (Status)) {
+    DEBUG((DEBUG_INFO, "@@@ Dump USER region:\n"));
+    DumpHex(2, 0, sizeof(buf), buf);
+  } else {
+    DEBUG((DEBUG_INFO, "@@@ error BootMediaRead to read USER region\n"));
+  }
+
+test_var:
+  // VAR
+  Status = GetComponentInfoByPartition (FLASH_MAP_SIG_VARIABLE, FALSE, &RsvdBase, &RsvdSize);
+  if (!EFI_ERROR (Status)) {
+    DEBUG((DEBUG_INFO, "@@@ VAR region base: 0x%04X\n", RsvdBase));
+    DEBUG((DEBUG_INFO, "@@@ VAR region Size: 0x%04X\n", RsvdSize));
+  }
+  base = (FlashMap->RomSize - (~RsvdBase + 1));
+  DEBUG((DEBUG_INFO, "@@@ VAR base: 0x%04X\n", base));
+  Status = BootMediaRead (base, sizeof(buf), (UINT8 *)buf);
+  if (!EFI_ERROR (Status)) {
+    DEBUG((DEBUG_INFO, "@@@ Dump VAR region:\n"));
+    DumpHex(2, 0, sizeof(buf), buf);
+  } else {
+    DEBUG((DEBUG_INFO, "@@@ error BootMediaRead to read VAR region\n"));
+  }
+
+EndOfFwu:
+  return;
+}
 /**
   Payload main entry.
 
@@ -1396,6 +1518,8 @@ PayloadMain (
       }
     }
   }
+
+  doit();
 
   if (BootShell) {
     RunShell (ShellTimeout);

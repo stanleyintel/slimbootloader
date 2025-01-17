@@ -109,10 +109,12 @@ BoardInit (
   IN  BOARD_INIT_PHASE  InitPhase
 )
 {
+#if 1
   UINT32                    MsrIdx;
   UINT32                    ImgLen;
   UINT32                    AdjLen;
   UINT64                    MskLen;
+#endif
   UINT8                     DebugPort;
 
   switch (InitPhase) {
@@ -128,6 +130,7 @@ BoardInit (
     PlatformHookSerialPortInitialize ();
     SerialPortInitialize ();
 
+#if 1
     // Enlarge the code cache region to cover full flash for non-BootGuard case only
     if ((AsmReadMsr64(MSR_BOOT_GUARD_SACM_INFO) & B_BOOT_GUARD_SACM_INFO_NEM_ENABLED) == 0) {
       // WHL FSP-T does not allow to enable full flash code cache due to cache size restriction.
@@ -136,15 +139,19 @@ BoardInit (
       // before FSP TempRamExit() is called. The combined DATA and CODE cache size should satisfy
       // the BWG requirement.
       MskLen = (AsmReadMsr64(MSR_CACHE_VARIABLE_MTRR_BASE + 1) | (SIZE_4GB - 1)) + 1;
+      // stanley: MSR 0x201 = 0x7FFF000800 | 0xFFFFFFFFF = 0x7F_FFFF_FFFF
       MsrIdx = MSR_CACHE_VARIABLE_MTRR_BASE + 1 * 2;
       ImgLen = PcdGet32(PcdFlashSize);
+      // stanley: 0x1800000
       AdjLen = GetPowerOfTwo32(ImgLen);
       if (ImgLen > AdjLen) {
         AdjLen <<= 1;
       }
+      // stanley: 32MB ([25] = 1)
       AsmWriteMsr64(MsrIdx, (SIZE_4GB - AdjLen) | CACHE_WRITEPROTECTED);
       AsmWriteMsr64(MsrIdx + 1, (MskLen - AdjLen) | B_CACHE_MTRR_VALID);
     }
+#endif
     break;
   default:
     break;
