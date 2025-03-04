@@ -788,6 +788,7 @@ BoardInit (
   FEATURES_CFG_DATA         *FeaturesCfgData;
   UINTN                     LpcBase;
   BL_SW_SMI_INFO            *BlSwSmiInfo;
+  UINT32                    Data;
 
   switch (InitPhase) {
   case PreSiliconInit:
@@ -830,6 +831,8 @@ BoardInit (
 
     // Prepare platform ACPI tables
     Status = PcdSet32S (PcdAcpiTableTemplatePtr, (UINT32)(UINTN)mPlatformAcpiTables);
+    Status = GpioGetInputValue(GPIO_VER2_LP_GPP_B15, &Data);
+    DEBUG((DEBUG_INIT, "@@@@ stage2/PreSiliconInit, B15= (status=%d, data=%x)\n", Status, Data));
     break;
   case PostSiliconInit:
     if (IsWdtFlagsSet(WDT_FLAG_TCC_DSO_IN_PROGRESS)) {
@@ -876,6 +879,8 @@ BoardInit (
         ReadCpuDts ();
       }
     }
+    Status = GpioGetInputValue(GPIO_VER2_LP_GPP_B15, &Data);
+    DEBUG((DEBUG_INIT, "@@@@ stage2/PostSiliconInit, B15= (status=%d, data=%x)\n", Status, Data));
     break;
   case PostPciEnumeration:
     if (FeaturePcdGet (PcdEnablePciePm)) {

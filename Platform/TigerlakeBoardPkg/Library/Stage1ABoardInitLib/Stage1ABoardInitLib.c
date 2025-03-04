@@ -69,6 +69,9 @@ CONST GPIO_INIT_CONFIG mUartGpioTable[] = {
   {GPIO_VER2_LP_GPP_C21, {GpioPadModeNative1, GpioHostOwnGpio, GpioDirNone,  GpioOutDefault, GpioIntDis, GpioHostDeepReset,  GpioTermNone}},//SERIALIO_UART2_TXD
 };
 
+CONST GPIO_INIT_CONFIG mTestGpio =
+  {GPIO_VER2_LP_GPP_B15,  {GpioPadModeGpio, GpioHostOwnGpio, GpioDirIn,  GpioOutDefault, GpioIntDefault, GpioHostDeepReset,  GpioTermNone}};
+
 /**
   Stitching process might pass some specific platform data to be
   consumed pretty early. This will be used to guide the platform initialization
@@ -112,6 +115,9 @@ BoardInit (
   UINT32                    AdjLen;
   UINT64                    MskLen;
   UINT8                     DebugPort;
+  EFI_STATUS                Status;
+  UINT32                    Data;
+  UINT32                    Dw0;
 
   switch (InitPhase) {
   case PostTempRamInit:
@@ -143,6 +149,16 @@ BoardInit (
       AsmWriteMsr64(MsrIdx, (SIZE_4GB - AdjLen) | CACHE_WRITEPROTECTED);
       AsmWriteMsr64(MsrIdx + 1, (MskLen - AdjLen) | B_CACHE_MTRR_VALID);
     }
+    break;
+  case PostConfigInit:
+    Dw0 = GpioReadPadCfgReg(GPIO_VER2_LP_GPP_B15, 0);
+    Status = GpioGetInputValue(GPIO_VER2_LP_GPP_B15, &Data);
+    DEBUG((DEBUG_INIT, "@@@@ stage1A/before, B15= (status=%d, Dw0=%x, data=%x)\n", Status, Dw0, Data));
+
+    ConfigureGpio (CDATA_NO_TAG, 1, (UINT8 *)&mTestGpio);
+    Dw0 = GpioReadPadCfgReg(GPIO_VER2_LP_GPP_B15, 0);
+    Status = GpioGetInputValue(GPIO_VER2_LP_GPP_B15, &Data);
+    DEBUG((DEBUG_INIT, "@@@@ stage1A/after, B15= (status=%d, Dw0=%x, data=%x)\n", Status, Dw0, Data));
     break;
   default:
     break;

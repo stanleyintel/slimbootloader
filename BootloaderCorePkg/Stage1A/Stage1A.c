@@ -374,6 +374,7 @@ SecStartup2 (
 
   // Set DebugPrintErrorLevel to default PCD.
   SetDebugPrintErrorLevel (PcdGet32 (PcdDebugPrintErrorLevel));
+  BoardInit (PostConfigInit);
 
   if (DebugCodeEnabled()) {
     DEBUG ((DEBUG_INFO, "\n============= %a STAGE1A =============\n",mBootloaderName));
