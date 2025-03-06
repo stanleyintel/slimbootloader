@@ -115,6 +115,14 @@ BoardInit (
 
   switch (InitPhase) {
   case PostTempRamInit:
+    {
+      UINT32 *addr;
+
+      // update
+      addr = (UINT32 *)(UINTN)(0xC0000060); // B0:D0:F0 offset 60h
+      *addr = 0xB0000001;
+    }
+
     DisableWatchDogTimer ();
 
     EarlyPlatformDataCheck ();

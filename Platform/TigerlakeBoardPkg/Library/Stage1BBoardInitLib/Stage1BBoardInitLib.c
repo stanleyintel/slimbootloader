@@ -751,6 +751,13 @@ DEBUG_CODE_BEGIN();
     }
 DEBUG_CODE_END();
 
+    {
+      UINT32 val32;
+
+      val32 = PciRead32(PCI_LIB_ADDRESS (0, 0, 0, 0x60));
+      DEBUG ((DEBUG_INFO, "@@@ after update: val=0x%x\n", val32));
+    }
+
     SetSocSku (PchSeries ());
 
     PltDeviceTable = (PLT_DEVICE_TABLE *)AllocatePool (sizeof (PLT_DEVICE_TABLE) + sizeof (mPlatformDevices));

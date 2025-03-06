@@ -37,7 +37,7 @@ class Board(BaseBoard):
         self.PCH_PKG_NAME         = 'TigerlakePchPkg'
         self.FSP_IMAGE_ID         = 'TGLI-FSP'
 
-        self.PCI_EXPRESS_BASE     = 0xC0000000
+        self.PCI_EXPRESS_BASE     = 0xB0000000
         self.PCI_IO_BASE          = 0x00002000
         self.PCI_MEM32_BASE       = 0x80000000
         self.PCI_MEM64_BASE       = 0x1000000000
