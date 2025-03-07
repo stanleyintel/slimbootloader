@@ -46,7 +46,7 @@ FSPT_UPD TempRamInitParams = {
     .PcdSerialIoUartMode        = 4, // SerialIoUartSkipInit, let SBL init UART
     .PcdSerialIoUartBaudRate    = 115200,
     .PcdPciExpressBaseAddress   = FixedPcdGet32 (PcdPciMmcfgBase),
-    .PcdPciExpressRegionLength  = 0x10000000,
+    .PcdPciExpressRegionLength  = 0x4000000, // 64MB
     .PcdSerialIoUartParity      = 1, // NoParity
     .PcdSerialIoUartDataBits    = 8,
     .PcdSerialIoUartStopBits    = 1,
@@ -120,7 +120,7 @@ BoardInit (
 
       // update
       addr = (UINT32 *)(UINTN)(0xC0000060); // B0:D0:F0 offset 60h
-      *addr = 0xB0000001;
+      *addr = PcdGet64(PcdPciExpressBaseAddress) | BIT0 | BIT2; // [3:1] = 010 means bus 0-63
     }
 
     DisableWatchDogTimer ();

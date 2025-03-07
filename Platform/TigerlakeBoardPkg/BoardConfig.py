@@ -41,6 +41,8 @@ class Board(BaseBoard):
         self.PCI_IO_BASE          = 0x00002000
         self.PCI_MEM32_BASE       = 0x80000000
         self.PCI_MEM64_BASE       = 0x1000000000
+        self._PCI_ENUM_BUS_SCAN_TYPE = 1  # range
+        self._PCI_ENUM_BUS_SCAN_ITEMS = '0,0x3F'  # bus 0 - 63
 
         if self.BUILD_ARCH == 'X64':
             # Assign Mem64/PMem64 PCI resources except for Bus0
