@@ -7,6 +7,15 @@
 
 #include "Stage2.h"
 
+#pragma pack(1)
+typedef struct {
+  UINT32    AnchorString;
+  UINT32    Size;
+  UINT32    Address;
+  UINT32    Dummy;
+} CUSTOM_REGION_SIGNATURE;
+#pragma pack()
+
 /**
   Callback function to add performance measure point during component loading.
 
@@ -578,6 +587,32 @@ SecStartup (
     if (EFI_ERROR(Status)) {
       DEBUG ((DEBUG_INFO, "SMBIOS init Status = %r\n", Status));
     }
+  }
+
+  {
+
+    UINT32   CustomRegionSize;
+    UINT8    *CustomRegionPtr;
+    UINT32   *ptr32;
+    UINT32   i;
+
+    CustomRegionSize = 0x10000000; // 256MB region
+    CustomRegionPtr = AllocateZeroPool (CustomRegionSize);
+
+    CUSTOM_REGION_SIGNATURE LegacyData;
+    LegacyData.AnchorString = SIGNATURE_32('_', 'M', 'Y', '_');
+
+    LegacyData.Size = CustomRegionSize;
+    LegacyData.Address = (UINT32)(UINTN)CustomRegionPtr;
+
+    for(i = 0; i < (CustomRegionSize/4); i++) {
+      ptr32 = (UINT32*)CustomRegionPtr + i;
+      *ptr32 = 0x5AA5A55A + i; // just a magic for test
+    }
+
+    // Copy at F segment for non-UEFI.
+    // 0xFFF60 is already used for Smbios and 0xFFF80 is used for ACPI
+    CopyMem ((VOID *)0xFFF40, &LegacyData, sizeof (CUSTOM_REGION_SIGNATURE));
   }
 
   // PCI Enumeration

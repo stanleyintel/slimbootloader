@@ -220,7 +220,7 @@ class Board(BaseBoard):
         self.CFGDATA_REGION_TYPE        = FLASH_REGION_TYPE.BIOS
         self.SPI_CONTAINER_REGION_TYPE  = FLASH_REGION_TYPE.BIOS
 
-        self.LOADER_RSVD_MEM_SIZE = 0x500000
+        self.LOADER_RSVD_MEM_SIZE = 0x10500000
 
         self.CFG_DATABASE_SIZE    = self.CFGDATA_SIZE + 0x1000
         self._generated_cfg_file_prefix = 'Autogen_'
