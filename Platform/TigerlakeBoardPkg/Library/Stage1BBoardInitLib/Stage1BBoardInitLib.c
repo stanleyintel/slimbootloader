@@ -486,6 +486,9 @@ UpdateFspConfig (
     Fspmcfg->TcssItbtPcie3En  = 0;
     Fspmcfg->DmiAspmCtrl      = 2;// ASPM configuration on the CPU side of the DMI/OPI Link
   }
+  Fspmcfg->MmioSize = 0x600; // works
+  DEBUG((DEBUG_INFO, "@@@ new MmioSize = %2x MmioSizeAdjustment=%2x\n",
+    Fspmcfg->MmioSize, Fspmcfg->MmioSizeAdjustment));
 }
 
 /**
