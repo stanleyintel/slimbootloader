@@ -159,6 +159,48 @@ SplitMemroyMap (
     MemoryMapInfo->Entry[NewIdx].Flag = 0;
     NewIdx++;
   }
+
+#define CUSTOM_REGION_ADDR 0x20000000
+#define CUSTOM_REGION_SIZE 0x10000000
+  if (NewIdx < PcdGet32 (PcdMemoryMapEntryNumber)) {
+    UINT32 i;
+    MEMORY_MAP_ENTRY add;
+    add.Type = 0xff;
+    for (i = 0; i< NewIdx; i++) {
+
+      // an existing region covers CUSTOM_REGION
+      if ((MemoryMapInfo->Entry[i].Base <= CUSTOM_REGION_ADDR) &&
+          ((MemoryMapInfo->Entry[i].Base + MemoryMapInfo->Entry[i].Size) >= CUSTOM_REGION_ADDR)) {
+
+
+        if ((MemoryMapInfo->Entry[i].Base + MemoryMapInfo->Entry[i].Size) > (CUSTOM_REGION_ADDR+CUSTOM_REGION_SIZE)) {
+          add.Base = CUSTOM_REGION_ADDR+CUSTOM_REGION_SIZE;
+          add.Size = (MemoryMapInfo->Entry[i].Base + MemoryMapInfo->Entry[i].Size) - add.Base;
+          add.Type = MemoryMapInfo->Entry[i].Type;
+          add.Flag = MemoryMapInfo->Entry[i].Flag;
+        }
+
+        MemoryMapInfo->Entry[i].Size = CUSTOM_REGION_ADDR - MemoryMapInfo->Entry[i].Base;
+
+        break;
+      }
+      // TODO: CUSTOM_REGION covers an existing region
+    }
+    MemoryMapInfo->Entry[NewIdx].Base = CUSTOM_REGION_ADDR;
+    MemoryMapInfo->Entry[NewIdx].Size = CUSTOM_REGION_SIZE;
+    MemoryMapInfo->Entry[NewIdx].Type = MEM_MAP_TYPE_RESERVED;
+    MemoryMapInfo->Entry[NewIdx].Flag = 0;
+    NewIdx++;
+
+    if ((add.Type != 0xff) && (add.Size > 0)) {
+      MemoryMapInfo->Entry[NewIdx].Base = add.Base;
+      MemoryMapInfo->Entry[NewIdx].Size = add.Size;
+      MemoryMapInfo->Entry[NewIdx].Type = add.Type;
+      MemoryMapInfo->Entry[NewIdx].Flag = add.Flag;
+      NewIdx++;
+    }
+  }
+
   MemoryMapInfo->Count = NewIdx;
 
   // Always keep one free entry
