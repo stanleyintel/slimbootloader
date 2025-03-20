@@ -107,7 +107,6 @@
 
 ## Build Rule Version Number
 #  build_rule_version=0.1
-#
 
 [C-Code-File]
     <InputFile>
@@ -130,6 +129,13 @@
 
     <Command.GCC>
         "$(CC)" $(DEPS_FLAGS) $(CC_FLAGS) -c -o ${dst} $(INC) ${src}
+        mkdir -p $(MYP)
+        touch $(MYP)/src.txt
+        echo -n "##### " >> $(MYP)/src.txt
+        echo ${src} >> $(MYP)/src.txt
+        "$(CC)" $(DEPS_FLAGS) $(CC_FLAGS) -c -E -o ${dst}.i5 $(INC) ${src}
+        cat ${dst}.i5 >> ${MYP}/src.txt
+        echo "" >> $(MYP)/src.txt
 
     <Command.XCODE>
         "$(CC)" $(DEPS_FLAGS) $(CC_FLAGS) -o ${dst} $(INC) ${src}
@@ -179,6 +185,10 @@
         "$(PP)" $(DEPS_FLAGS) $(PP_FLAGS) $(INC) ${src} > ${d_path}(+)${s_base}.ii
         Trim --trim-long --source-code -o ${d_path}(+)${s_base}.iiii ${d_path}(+)${s_base}.ii
         "$(ASM)" $(ASM_FLAGS) -o ${dst} $(INC) ${d_path}(+)${s_base}.iiii
+        mkdir -p ${MYP}
+        touch ${MYP}/src.txt
+        cat ${d_path}(+)${s_base}.iiii >> ${MYP}/src.txt
+        echo "" >> $(MYP)/src.txt
 
 [Assembly-Code-File.COMMON.ARM,Assembly-Code-File.COMMON.AARCH64]
     # Remove --convert-hex for ARM as it breaks MSFT assemblers
