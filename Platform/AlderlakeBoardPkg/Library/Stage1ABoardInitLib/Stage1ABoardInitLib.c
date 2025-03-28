@@ -60,7 +60,7 @@ FSPT_UPD TempRamInitParams = {
 #if defined(PLATFORM_ADLN)
     .PcdSerialIoUartPowerGating = 1,
 #endif
-    .PcdSerialIoUartBaudRate    = 115200,
+    .PcdSerialIoUartBaudRate    = 9600,
     .PcdPciExpressBaseAddress   = FixedPcdGet32 (PcdPciMmcfgBase),
     .PcdPciExpressRegionLength  = 0x10000000,
     .PcdSerialIoUartParity      = 1, // NoParity

@@ -129,7 +129,10 @@ SerialPortInitialize (
     //
     // Calculate divisor for baud generator
     //
-    Divisor = 115200 / gBps;
+    Divisor = DivU64x64Remainder (1843200, LShiftU64 (9600, 4), NULL);
+    if (Divisor == 0) {
+       Divisor = 1;
+    }
 
     //
     // Set communications format
@@ -140,7 +143,7 @@ SerialPortInitialize (
     //
     // Configure baud rate
     //
-    SerialPortWriteRegister (BAUD_HIGH_OFFSET, (UINT8) (Divisor >> 8));
+    SerialPortWriteRegister (BAUD_HIGH_OFFSET, (UINT8) (UINT8)(RShiftU64 (Divisor & 0xFF00, 8)));
     SerialPortWriteRegister (BAUD_LOW_OFFSET,  (UINT8) (Divisor & 0xff));
 
     //

@@ -305,7 +305,7 @@ BuildBaseInfoHob (
     SerialPortInfo->Type        = 1;
     SerialPortInfo->BaseAddr64  = 0x3F8;
     SerialPortInfo->BaseAddr    = 0x3F8;
-    SerialPortInfo->Baud        = 115200;
+    SerialPortInfo->Baud        = 9600;
     SerialPortInfo->RegWidth    = 1;
     SerialPortInfo->InputHertz  = 1843200;
     SerialPortInfo->UartPciAddr = 0;
