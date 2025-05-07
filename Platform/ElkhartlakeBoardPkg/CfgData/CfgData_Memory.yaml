@@ -176,7 +176,7 @@
       help         : >
                      0=Disable/Clear, 1=Enable/Set
       length       : 0x1
-      value        : 0x0
+      value        : 0x1
   - CpuTraceHubMode :
       name         : CPU Trace Hub Mode
       type         : Combo
