@@ -14,6 +14,7 @@
 #include <Library/TimerLib.h>
 #include <Library/MemoryAllocationLib.h>
 #include <Library/SortLib.h>
+#include <Library/IoLib.h>
 #include "Shell.h"
 #include "History.h"
 #include "Parsing.h"
@@ -546,6 +547,87 @@ ShellCommandUnRegisterAll (
   return EFI_SUCCESS;
 }
 
+
+#define PIC1_COMMAND 0x20
+#define PIC1_DATA    0x21
+#define PIC2_COMMAND 0xA0
+#define PIC2_DATA    0xA1
+
+#define ICW1_INIT    0x11
+#define ICW4_8086    0x01
+
+VOID RemapPIC (
+  IN VOID
+  )
+{
+    // Start initialization sequence
+    IoWrite8(PIC1_COMMAND, ICW1_INIT);
+    IoWrite8(PIC2_COMMAND, ICW1_INIT);
+
+    // Set vector offset
+    IoWrite8(PIC1_DATA, 32); // Master PIC vector offset
+    IoWrite8(PIC2_DATA, 40); // POC, just use the same vector
+
+    // Define PIC cascade
+    IoWrite8(PIC1_DATA, 0x04); // Tell Master PIC that Slave PIC is at IRQ2
+    IoWrite8(PIC2_DATA, 0x02); // Tell Slave PIC its cascade identity
+
+    // Set environment info
+    IoWrite8(PIC1_DATA, ICW4_8086);
+    IoWrite8(PIC2_DATA, ICW4_8086);
+
+    // Restore masks (if needed)
+    IoWrite8(PIC1_DATA, 0xFF); // Mask all interrupts on master PIC
+    IoWrite8(PIC2_DATA, 0xFF); // Mask all interrupts on slave PIC
+}
+
+
+VOID Start8254() {
+    UINT32 *regHpet;
+
+    RemapPIC();
+
+    // Send command byte to PIT
+    IoWrite8(0x43, 0x30);
+
+    // LSB then HSB
+    IoWrite8(0x40, 0);
+    IoWrite8(0x40, 0x10);
+
+    IoWrite8(0x43, 0xd2); // read back the status and count of counter 0
+
+    IoWrite8(0x21, 0xFE); // Mask all except IRQ0
+
+    // if using legacy replacement routing (LEG_RT_CFG), 8254 will not cause any interrupts.
+    // so, ensure LEG_RT_CFG is not enabled
+    regHpet = (UINT32 *) 0xFED00010;
+    DEBUG((DEBUG_INFO, "HPET GEN_CFG: %x (original)\n", *regHpet));
+    *regHpet = (*regHpet)&(~BIT1);
+    DEBUG((DEBUG_INFO, "HPET GEN_CFG: %x (update)\n", *regHpet));
+
+    IoWrite8(PIC1_DATA, 0);
+    IoWrite8(PIC2_DATA, 0);
+}
+
+VOID Stop8254() {
+
+    UINT8 mask;
+
+    // Read the current mask from the PIC
+    mask = IoRead8(PIC1_DATA);
+
+    // Set the mask for IRQ0 (bit 0)
+    mask |= 0x01;
+
+    // Write the updated mask back to the PIC
+    IoWrite8(PIC1_DATA, mask);
+
+    // Send command byte to PIT to set mode 0 (interrupt on terminal count)
+    IoWrite8(0x43, 0x30);
+
+    IoWrite8(0x40, 0x00); // LSB
+    IoWrite8(0x40, 0x00); // MSB
+}
 /**
   Begin a run-time interactive shell.
 
@@ -566,6 +648,8 @@ Shell (
   UINTN       Index1;
   SHELL       Shell;
   UINT8       Buffer;
+
+  Start8254 ();
 
   ZeroMem (&Shell, sizeof (Shell));
   InitializeListHead (&Shell.CommandEntryList);
@@ -613,6 +697,8 @@ Shell (
   Status = EFI_SUCCESS;
 
 Exit:
+  Stop8254 ();
+
   ShellCommandUnRegisterAll (&Shell);
 
   return Status;

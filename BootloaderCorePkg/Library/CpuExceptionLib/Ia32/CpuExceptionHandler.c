@@ -8,6 +8,8 @@
 
 #include <CpuExceptionCommon.h>
 
+#include <Library/IoLib.h>
+
 CONST UINT32 mErrorCodeFlag = 0x00027d00;
 
 /**
@@ -83,6 +85,12 @@ UpdateExceptionHandler2 (
     IdtGateDescriptor.Bits.OffsetLow  = (UINT16)Address;
     IdtTable[Index] = IdtGateDescriptor.Uint64;
   }
+  DEBUG((DEBUG_INFO, "@@@ Idtr Base: %x limit: %d (entry=%d)\n", (UINT32)Idtr.Base, Idtr.Limit, (Idtr.Limit+1)/8));
+  for (Index = 0; Index < ((Idtr.Limit+1)/8); Index++) {
+    IdtGateDescriptor.Uint64 = IdtTable[Index];
+    DEBUG((DEBUG_INFO, "    Index=%d idt=%lx h=%x l=%x\n", Index, IdtTable[Index], IdtGateDescriptor.Bits.OffsetHigh, IdtGateDescriptor.Bits.OffsetLow));
+    IdtTable[Index] = 0;
+  }
 
   if (IdtDescriptor != NULL) {
     AsmWriteIdtr (&Idtr);
@@ -105,3 +113,4 @@ UpdateExceptionHandler (
 {
   UpdateDebugAgentIdt (IdtDescriptor, UpdateExceptionHandler2);
 }
+

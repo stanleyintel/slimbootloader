@@ -345,7 +345,7 @@ SecStartup2 (
   IN VOID   *Params
   )
 {
-  STAGE_IDT_TABLE          *IdtTablePtr;
+  STAGE_IDT_TABLE_FULL     *IdtTablePtr;
   STAGE_GDT_TABLE          *GdtTablePtr;
   STAGE1A_PARAM            *Stage1aParam;
   LOADER_GLOBAL_DATA       *LdrGlobal;
@@ -449,6 +449,7 @@ SecStartup2 (
   DEBUG ((DEBUG_INIT, "Memory Init\n"));
   AddMeasurePoint (0x2020);
   Status = CallFspMemoryInit (PCD_GET32_WITH_ADJUST (PcdFSPMBase), &HobList);
+  DEBUG ((DEBUG_INIT, "Memory Init end\n"));
 
   FspResetHandler (Status);
   ASSERT_EFI_ERROR (Status);
@@ -489,8 +490,8 @@ SecStartup2 (
   MemPoolEnd     = FspReservedMemBase - PcdGet32 (PcdLoaderHobStackSize);
   MemPoolCurrTop = ALIGN_DOWN (MemPoolEnd - sizeof (LOADER_GLOBAL_DATA), 0x10);
   LdrGlobal      = (LOADER_GLOBAL_DATA *)(UINTN)MemPoolCurrTop;
-  MemPoolCurrTop = ALIGN_DOWN (MemPoolCurrTop - sizeof (STAGE_IDT_TABLE), 0x10);
-  IdtTablePtr    = (STAGE_IDT_TABLE *)(UINTN)MemPoolCurrTop;
+  MemPoolCurrTop = ALIGN_DOWN (MemPoolCurrTop - sizeof (STAGE_IDT_TABLE_FULL), 0x10); // add 16 entries
+  IdtTablePtr    = (STAGE_IDT_TABLE_FULL *)(UINTN)MemPoolCurrTop;
   MemPoolCurrTop = ALIGN_DOWN (MemPoolCurrTop - sizeof (STAGE_GDT_TABLE), 0x10);
   GdtTablePtr    = (STAGE_GDT_TABLE *)(UINTN)MemPoolCurrTop;
 
@@ -528,7 +529,8 @@ SecStartup2 (
 
   // Setup global data in memory
   LoadGdt (GdtTablePtr, NULL);
-  LoadIdt (IdtTablePtr, (UINT32)(UINTN)LdrGlobal);
+  ZeroMem (IdtTablePtr, sizeof(*IdtTablePtr));
+  LoadIdt2 (IdtTablePtr, (UINT32)(UINTN)LdrGlobal);
   SetLoaderGlobalDataPointer (LdrGlobal);
   DEBUG ((DEBUG_INFO, "Loader global data @ 0x%08X\n", (UINT32)(UINTN)LdrGlobal));
 

@@ -1509,6 +1509,7 @@ UpdateFspConfig (
     }
   }
 
+  FspsConfig->Enable8254ClockGating = 0;
   if (FeaturePcdGet (PcdEnablePciePm)) {
     StoreRpConfig (FspsConfig);
   }

@@ -21,6 +21,7 @@
 
 [Sources]
   StageLib.c
+  AsmFuncs.nasm
 
 [Packages]
   MdePkg/MdePkg.dec

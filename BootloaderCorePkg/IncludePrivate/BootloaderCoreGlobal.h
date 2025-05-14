@@ -51,6 +51,11 @@ typedef struct {
 } STAGE_IDT_TABLE;
 
 typedef struct {
+  UINT64        LdrGlobal;
+  IA32_IDT_GATE_DESCRIPTOR  IdtTable[STAGE_IDT_ENTRY_COUNT + 16];
+} STAGE_IDT_TABLE_FULL;
+
+typedef struct {
   IA32_SEGMENT_DESCRIPTOR   GdtTable[STAGE_GDT_ENTRY_COUNT];
 } STAGE_GDT_TABLE;
 

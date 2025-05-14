@@ -12,6 +12,51 @@
 #include <Library/CpuExceptionLib.h>
 #include <Library/PagingLib.h>
 #include <BootloaderCoreGlobal.h>
+#include <Library/IoLib.h>
+
+
+#define PIC1_COMMAND 0x20
+#define PIC2_COMMAND 0xA0
+#define PIC_EOI 0x20
+
+extern UINTN  GenericInterruptHandle;
+
+VOID
+EFIAPI
+GenericInterruptProcess (
+  VOID
+)
+{
+  IoWrite8(PIC2_COMMAND, PIC_EOI);
+  IoWrite8(PIC1_COMMAND, PIC_EOI); // Cascade EOI
+  DEBUG((DEBUG_INFO, "@@@ GenericInterruptProcess\n"));
+  return;
+}
+
+VOID
+AddCommonInterruptHandler (
+  VOID
+)
+{
+  IA32_DESCRIPTOR             Idtr;
+  UINT64                     *IdtTable;
+  IA32_IDT_GATE_DESCRIPTOR    IdtGateDescriptor;
+  UINTN                       Handler;
+  UINT32 Index;
+
+  AsmReadIdtr (&Idtr);
+
+  IdtTable                          = (UINT64 *)Idtr.Base;
+
+  Handler = (UINTN) GenericInterruptHandle;
+  IdtGateDescriptor.Bits.OffsetHigh = (UINT16)(Handler >> 16);
+  IdtGateDescriptor.Bits.OffsetLow  = (UINT16)Handler;
+  IdtGateDescriptor.Bits.Selector   = AsmReadCs ();
+  IdtGateDescriptor.Bits.GateType   = IA32_IDT_GATE_TYPE_INTERRUPT_32;
+  for (Index = 32; Index < ((Idtr.Limit+1)/8); Index++) {
+    IdtTable[Index] = IdtGateDescriptor.Uint64;
+  }
+}
 
 /**
   Load IDT table for current processor.
@@ -41,6 +86,22 @@ LoadIdt (
   Idtr.Base  = (UINTN) &IdtTable->IdtTable;
   Idtr.Limit = (UINT16) (sizeof (IdtTable->IdtTable) - 1);
   UpdateExceptionHandler (&Idtr);
+}
+
+VOID
+LoadIdt2 (
+  IN STAGE_IDT_TABLE_FULL   *IdtTable,
+  IN UINTN                   Data
+  )
+{
+  IA32_DESCRIPTOR             Idtr;
+
+  IdtTable->LdrGlobal  = Data;
+
+  Idtr.Base  = (UINTN) &IdtTable->IdtTable;
+  Idtr.Limit = (UINT16) (sizeof (IdtTable->IdtTable) - 1);
+  UpdateExceptionHandler (&Idtr);
+  AddCommonInterruptHandler ();
 }
 
 /**
@@ -166,6 +227,7 @@ UnmapStage (
 
   // Reload Exception handler
   UpdateExceptionHandler (NULL);
+  AddCommonInterruptHandler ();
 
   if (FeaturePcdGet (PcdRemapStage1B)) {
     DEBUG ((DEBUG_INFO, "Unmapping Stage\n"));

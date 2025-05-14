@@ -30,6 +30,12 @@ LoadIdt (
   IN UINTN              Data
   );
 
+VOID
+LoadIdt2 (
+  IN STAGE_IDT_TABLE_FULL   *IdtTable,
+  IN UINTN              Data
+  );
+
 /**
   Copy GDT to memory and Load GDT table for current processor.
 
