@@ -10,6 +10,9 @@
 #include <Library/ShellLib.h>
 #include <Library/PciExpressLib.h>
 #include <Library/IoLib.h>
+#include <Library/BootloaderCommonLib.h>
+#include <Library/TimeStampLib.h>
+#include <Library/BaseMemoryLib.h>
 
 /**
   Read or write memory, PCI config space, or IO ports.
@@ -35,6 +38,22 @@ CONST SHELL_COMMAND ShellCommandMm = {
   &ShellCommandMmFunc
 };
 
+BL_PERF_DATA                        *PerfData = NULL;
+
+UINT64
+EFIAPI
+GetTimeInMs() {
+  UINT64                              TscValue;
+  UINT64                              TimeInMs;
+
+  if (PerfData == NULL) {
+    PerfData = GetPerfDataPtr();
+  }
+  TscValue = ReadTimeStamp();
+  TimeInMs = DivU64x32 (TscValue, PerfData->FreqKhz);
+  return TimeInMs;
+}
+
 /**
   Write memory address given from mm command.
 
@@ -57,6 +76,19 @@ MmWrite (
 {
   UINTN Index;
 
+  if (Width > 8) {
+    UINT64 start, duration;
+
+    start = GetTimeInMs();
+    for (Index = 0; Index < (Width-8); Index++) {
+      SetMem ((VOID  *)Addr, Count, (UINT8)((Value+Index)&0xFF));
+    }
+    duration = GetTimeInMs() - start;
+
+    ShellPrint (L"done: %ld ms (Size=%d, Count=%d)\n", duration, Count, (Width-8));
+    return;
+  }
+  
   for (Index = 0; Index < Count; Index++, Addr+=Width) {
     switch (Width) {
     case 1:
@@ -237,12 +269,12 @@ ShellCommandMmFunc (
   }
 
   if (!EFI_ERROR (Status)) {
-    if ((Width != 1) && (Width != 2) && (Width != 4) && (Width != 8)) {
+    if ((Width != 1) && (Width != 2) && (Width != 4) && (Width != 8) && (Width < 9)) {
       ShellPrint (L"Error, width %u not supported\n", Width);
       return EFI_INVALID_PARAMETER;
     }
     // Make sure access is aligned
-    if ((Addr & (Width - 1)) != 0) {
+    if ((Width <=8) && ((Addr & (Width - 1)) != 0)) {
       ShellPrint (L"Error, unaligned access\n");
       return EFI_INVALID_PARAMETER;
     }
