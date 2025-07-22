@@ -94,6 +94,56 @@ GetVariableMtrrCount (
   return MtrrCap.Bits.VCNT;
 }
 
+/* demo:
+
+  the original MSR_IA32_MTRR_PHYSBASE1 is to set region below 2GB be Write-Back
+  the demo replaces it with
+    [0x070000000-0x07FFFFFFF] Write-Back
+
+  and explictily adds
+  [0x000000000-0x00FFFFFFF] Write-Back in MSR_IA32_MTRR_PHYSBASE7
+  [0x060000000-0x06FFFFFFF] Write Combining in MSR_IA32_MTRR_PHYSBASE8
+
+*/
+VOID
+EFIAPI
+DemoSetMtrrs (
+  VOID
+)
+{
+
+  UINT32 VariableMtrrCount;
+  UINT32 MsrIdx;
+  UINT64 base;
+  UINT64 mask;
+
+  VariableMtrrCount = GetVariableMtrrCount ();
+  DEBUG((DEBUG_INFO, "@@@ var mtrr count=%d\n", VariableMtrrCount));
+
+  MsrIdx = MSR_IA32_MTRR_PHYSBASE0 + (1 << 1);
+  base = 0x70000000 | 0x6; // SBL code/data for WB
+  mask = 0x7FF0000000 | BIT11;
+  AsmWriteMsr64 (MsrIdx, base);
+  AsmWriteMsr64 (MsrIdx + 1, mask);
+  // DEBUG((DEBUG_INFO, "@@@ idx=%x base=%llx  mask=%llx\n", MsrIdx, base, mask));
+
+  MsrIdx = MSR_IA32_MTRR_PHYSBASE0 + (7 << 1);
+  base = AsmReadMsr64 (MsrIdx);
+  base = 0x0 | 0x6; // for WB
+  mask = 0x7FF0000000 | BIT11;
+  AsmWriteMsr64 (MsrIdx, base);
+  AsmWriteMsr64 (MsrIdx + 1, mask);
+  // DEBUG((DEBUG_INFO, "@@@ idx=%x base=%llx  mask=%llx\n", MsrIdx, base, mask));
+
+  MsrIdx = MSR_IA32_MTRR_PHYSBASE0 + (8 << 1);
+  base = 0x60000000 | 0x1; // for WC
+  mask = 0x7FF0000000 | BIT11;
+  AsmWriteMsr64 (MsrIdx, base);
+  AsmWriteMsr64 (MsrIdx + 1, mask);
+  // DEBUG((DEBUG_INFO, "@@@ idx=%x base=%llx  mask=%llx\n", MsrIdx, base, mask));
+
+}
+
 /**
   This function gets the content in all MTRRs (variable and fixed)
 
@@ -131,18 +181,6 @@ GetCpuMtrrs (
   if (VariableMtrrCount > ARRAY_SIZE (VariableSettings->Mtrr)) {
     return EFI_OUT_OF_RESOURCES;
   }
-
-  // demo: append 0x60000000 to 0x70000000 for WB
-  {
-    UINT64 base;
-    UINT64 mask;
-    base = 0x60000000 | 0x6; // for WB
-    mask = 0x7FF0000000 | BIT11; // 
-    MsrIdx = MSR_IA32_MTRR_PHYSBASE0 + (7 << 1);
-    AsmWriteMsr64 (MsrIdx, base);
-    AsmWriteMsr64 (MsrIdx + 1, mask);
-  }
-  
 
   VariableSettings = &MtrrSetting->Variables;
   for (Index = 0; Index < VariableMtrrCount; Index++) {

@@ -6,6 +6,7 @@
 **/
 
 #include "Stage2.h"
+#include <Library/MtrrLib.h>
 
 /**
   Callback function to add performance measure point during component loading.
@@ -516,6 +517,7 @@ SecStartup (
   AddMeasurePoint (0x3030);
   FspResetHandler (Status);
 
+  DemoSetMtrrs();
 
   if (FixedPcdGetBool (PcdSmbiosEnabled)) {
     InitSmbiosStringPtr ();

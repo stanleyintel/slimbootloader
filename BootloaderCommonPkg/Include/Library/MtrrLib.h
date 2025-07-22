@@ -57,6 +57,12 @@ typedef struct _MTRR_SETTINGS_ {
   MTRR_VARIABLE_SETTINGS    Variables;
 } MTRR_SETTINGS;
 
+VOID
+EFIAPI
+DemoSetMtrrs (
+  VOID
+);
+
 /**
   This function gets the content in all MTRRs (variable and fixed)
 
