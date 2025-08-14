@@ -982,7 +982,7 @@ PlatformUpdateAcpiGnvs (
   if ((SiCfgData != NULL) && (SiCfgData->EcAvailable == 0)){
       PlatformNvs->PcdIT8659SIO = 1;
       PlatformNvs->PcdIT8659HWMON = 1;
-      PlatformNvs->PcdIT8659COM = 1;
+      PlatformNvs->PcdIT8659COM = 0;
   }
     //
     // Intel(R) Dynamic Tuning Technology Devices and trip points

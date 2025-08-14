@@ -1136,6 +1136,7 @@ UpdateFspConfig (
     }
   }
 
+  FspsConfig->CnviMode = 0; // for UART2
 #if FixedPcdGet8 (PcdTccEnabled)
   Status = TccModePostMemConfig (FspsUpd);
 #endif
