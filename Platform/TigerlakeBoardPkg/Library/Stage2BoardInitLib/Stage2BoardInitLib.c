@@ -129,6 +129,11 @@ CHAR8 *mBoardIdIndex[] = {
   "Up Xtreme i11 DDR4 SODIMM",             // 0x04
 };
 
+GLOBAL_REMOVE_IF_UNREFERENCED GPIO_INIT_CONFIG mGpioTest[] =
+{
+  {GPIO_VER2_LP_GPP_H20, {GpioPadModeGpio, GpioHostOwnDefault, GpioDirOut,    GpioOutHigh,   GpioIntDis, GpioResetDefault,  GpioTermNone}},
+};
+
 //
 // This table contains data on INTx and IRQ for PCH-LP
 //
@@ -788,6 +793,7 @@ BoardInit (
   FEATURES_CFG_DATA         *FeaturesCfgData;
   UINTN                     LpcBase;
   BL_SW_SMI_INFO            *BlSwSmiInfo;
+  UINT32 v;
 
   switch (InitPhase) {
   case PreSiliconInit:
@@ -821,6 +827,11 @@ BoardInit (
         }
       }
     }
+    v = MmioRead32 (0xFD6D08C0);
+    DEBUG((DEBUG_INFO, "@@@@ H20 DW0 (before): %x\n", v));
+    ConfigureGpio (CDATA_NO_TAG, sizeof (mGpioTest) / sizeof (mGpioTest[0]), (UINT8*)mGpioTest);
+    v = MmioRead32 (0xFD6D08C0);
+    DEBUG((DEBUG_INFO, "@@@@ H20 DW0 (after): %x\n", v));
 
     SpiConstructor ();
     Status = GetComponentInfo (FLASH_MAP_SIG_VARIABLE, &RgnBase, &RgnSize);
