@@ -516,6 +516,7 @@ BoardInit (
       }
     }
 #endif
+    GpioLockPads ();
     break;
   case PostSiliconInit:
     FusaConfigPostSi();

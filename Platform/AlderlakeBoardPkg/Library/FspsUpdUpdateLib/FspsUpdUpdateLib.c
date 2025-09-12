@@ -1102,7 +1102,6 @@ UpdateFspConfig (
         FspsConfig->EnergyEfficientTurbo = 0x1;
         FspsConfig->PkgCStateLimit = 0x6;
         FspsConfig->PsysPmax = 0x0;
-        FspsConfig->PchUnlockGpioPads = 0x1;
 
         for (Index = 0; Index < 4; Index++) {
           FspsConfig->CpuPcieRpLtrMaxSnoopLatency[Index]   = 0x1003;
