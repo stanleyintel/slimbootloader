@@ -18,7 +18,7 @@
 #include "PciAri.h"
 #include "PciIov.h"
 
-#define  DEBUG_PCI_ENUM    0
+#define  DEBUG_PCI_ENUM    1
 
 UINT8   *mPoolPtr;
 
@@ -1892,6 +1892,10 @@ PciEnumeration (
   mDefaultResRange.Mmio64Limit  = PcdGet64 (PcdPciResourceMem64Base) + (RShiftU64 (PcdGet64 (PcdPciResourceMem64Base), 1));
 
   EnumPolicy = (PCI_ENUM_POLICY_INFO *)PcdGetPtr (PcdPciEnumPolicyInfo);
+
+  DEBUG((DEBUG_INFO, "@@@ enum policy: %d %d %x\n", EnumPolicy->Downgrade.Bus0, EnumPolicy->Downgrade.Mem64, EnumPolicy->Downgrade.PMem64));
+  DEBUG((DEBUG_INFO, "@@@ mmio64base: %llX\n", mDefaultResRange.Mmio64Base));
+
   RootBridgeCount = 0;
 
   Status = PciScanRootBridges (EnumPolicy, &RootBridges, &RootBridgeCount);
