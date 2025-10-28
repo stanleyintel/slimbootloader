@@ -6,6 +6,7 @@
 
 **/
 #include <MpInitLibInternal.h>
+#include <Register/Intel/Cpuid.h>
 
 STATIC UINT32                             mStubCodeSize;
 STATIC ALL_CPU_INFO                       mSysCpuInfo;
@@ -21,6 +22,41 @@ extern UINT8                             *mDefaultSmiHandlerEnd;
 
 extern VOID                               RendezvousFunnelProcStart(VOID);
 extern VOID                               RendezvousFunnelProcEnd(VOID);
+
+typedef struct {
+  UINT8 is_atom;
+  UINT8 padding[7];
+  UINT64 msr1;
+  UINT64 msr2;
+} per_cpu_data;
+
+#define KNOWN_ADDR 0x5000000
+
+UINT64
+EFIAPI
+GetECoreMsrTask (
+  IN  UINT64   Arg
+  )
+{
+  CPUID_NATIVE_MODEL_ID_AND_CORE_TYPE_EAX Eax;
+  per_cpu_data *d;
+
+  d = (per_cpu_data *)KNOWN_ADDR; // just a temp memory addr
+  d = d + Arg;
+
+  AsmCpuid (CPUID_HYBRID_INFORMATION, &Eax.Uint32, NULL, NULL, NULL);
+  if ((UINT8)Eax.Bits.CoreType == CPUID_CORE_TYPE_INTEL_ATOM) {
+    d->is_atom = 1;
+    // Note: MSR 2D1 cause exception, possibly my sku does not support it
+    d->msr1 = AsmReadMsr32 (0xD1A); // MSR D1A is e-core only MSR
+    d->msr2 = AsmReadMsr64 (0x2D9);
+  } else {
+    d->is_atom = 0;
+    d->msr1 = AsmReadMsr32 (0x1A90); // MSR 1A90 is P-core only MSR
+    d->msr2 = AsmReadMsr64 (0x2D9);
+  }
+  return 0;
+}
 
 /**
   The CPU task function to program MTRRs.
@@ -514,6 +550,33 @@ MpInit (
           CpuHalt ("CPU SMM rebase failed!\n");
         } else {
           DEBUG ((DEBUG_INFO, "SMM rebase done on %d CPUs\n", mMpDataStruct.SmmRebaseDoneCounter));
+        }
+      }
+
+      // Need to configure MTRR earlier, Otherwise, it will be slow for each core to update memory
+      Status = GetCpuMtrrs (&mMtrrTable);
+      if (!EFI_ERROR(Status)) {
+        for (Index = 1; Index < mSysCpuTask.CpuCount; Index++) {
+          if (mSysCpuTask.CpuTask[Index].State == EnumCpuReady) {
+            MpRunTask (Index, SetCpuMtrrsTask, (UINT64)(UINTN)&mMtrrTable);
+          }
+        }
+      }
+
+      // Allow MTRR sync to complete
+      MicroSecondDelay (100);
+
+      {
+        per_cpu_data *d;
+        d = (per_cpu_data *)KNOWN_ADDR;
+        ZeroMem(d, sizeof(per_cpu_data)* CpuCount);
+        AsmWbinvd ();
+      }
+
+      GetECoreMsrTask(0);
+      for (Index = 1; Index < CpuCount; Index++) {
+        if (mSysCpuTask.CpuTask[Index].State == EnumCpuReady) {
+          MpRunTask (Index, GetECoreMsrTask, (UINT64)(UINTN)Index);
         }
       }
 

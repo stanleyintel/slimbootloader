@@ -1425,6 +1425,34 @@ RunShell (
   Shell (Timeout);
 }
 
+typedef struct {
+  UINT8 is_atom;
+  UINT8 padding[7];
+  UINT64 msr1;
+  UINT64 msr2;
+} per_cpu_data;
+
+#define KNOWN_ADDR 0x5000000
+
+VOID
+EFIAPI
+doit ()
+{
+  per_cpu_data *d;
+  UINT32 Index, CpuCount;
+
+  CpuCount = 20;
+
+  AsmWbinvd ();
+  DEBUG((DEBUG_INFO, "Dump ATOM MSR: \n"));
+  for (Index = 0; Index < CpuCount; Index++) {
+    d = (per_cpu_data *)KNOWN_ADDR + Index;
+    if (d->is_atom == 1) {
+      DEBUG((DEBUG_INFO, "@@@@ index: %d msr1:%8llx msr2:%8llx\n", Index, d->msr1, d->msr2));
+    }
+  }
+}
+
 /**
   Payload main entry.
 
@@ -1451,6 +1479,9 @@ PayloadMain (
   mEntryStack = Param;
 
   DEBUG ((DEBUG_INFO, "\n\n====================Os Loader====================\n\n"));
+
+  doit();
+
   AddMeasurePoint (0x4010);
 
   //
