@@ -20,7 +20,7 @@
 #include "PciIov.h"
 #include "InternalPciEnumerationLib.h"
 
-#define  DEBUG_PCI_ENUM    0
+#define  DEBUG_PCI_ENUM    1
 
 // PCI attribute definitions for Universal Payload HOB
 #define EFI_PCI_ATTRIBUTE_ISA_MOTHERBOARD_IO          0x0001
@@ -366,6 +366,11 @@ PciParseBar (
       break;
     }
   }
+
+  DEBUG((DEBUG_INFO, "    @@@ Bar: %d BarType: %d Length: 0x%llx\n",
+    BarIndex,
+    PciIoDevice->PciBar[BarIndex].BarType,
+    PciIoDevice->PciBar[BarIndex].Length));
 
   //
   // Check the length again so as to keep compatible with some special bars
