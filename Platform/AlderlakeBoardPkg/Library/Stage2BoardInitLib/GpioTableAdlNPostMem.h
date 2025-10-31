@@ -66,7 +66,6 @@ GLOBAL_REMOVE_IF_UNREFERENCED GPIO_INIT_CONFIG mGpioTablePostMemAdlNDdr5Crb[] =
   //I225 FOXVILLE LAN // LAN_FOX_ON not needed in CRB
   {GPIO_VER2_LP_GPP_E5,    {GpioPadModeGpio, GpioHostOwnAcpi, GpioDirOut,   GpioOutHigh,      GpioIntDis,                GpioPlatformReset,  GpioTermNone,}},  // LAN_I225_DISABLE_N_R
   {GPIO_VER2_LP_GPP_H23,   {GpioPadModeGpio, GpioHostOwnAcpi, GpioDirOut,   GpioOutHigh,      GpioIntDis,                GpioPlatformReset,  GpioTermNone,}},  // LAN_I225_RST_N
-  {GPIO_VER2_LP_GPD2,      {GpioPadModeGpio, GpioHostOwnAcpi, GpioDirInInv, GpioOutDefault,   GpioIntEdge,               GpioHostDeepReset,  GpioTermNone, GpioPadConfigUnlock}},  // this is needed to be in NF mode1 FOX_WAKE_N. Set to SCI based on the setup option
 
   // PWR BTN GPIO
 //  {GPIO_VER2_LP_GPP_H19,   {GpioPadModeGpio, GpioHostOwnGpio, GpioDirInInv, GpioOutDefault,   GpioIntEdge|GpioIntSci,    GpioPlatformReset,  GpioTermNone,  GpioPadConfigUnlock  }},  // PWRBTN_GPIO_N

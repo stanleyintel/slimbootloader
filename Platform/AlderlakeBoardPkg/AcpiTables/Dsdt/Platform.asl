@@ -186,16 +186,16 @@ Method(_PTS,1)
       If (CondRefOf(\_SB.PC00.LPCB.H_EC.UTEC)) {
         //Programming BIOS to send DC timer mode only .Other timer mode will be sent as per future requirements.
         // 1. Program Timer mode to 0x00 : WADT_AC register
-        //\_SB.PC00.LPCB.H_EC.UTEC(0x00, \ACWA)
+        \_SB.PC00.LPCB.H_EC.UTEC(0x00, \ACWA)
 
         // 2. Program Timer mode to 0x01 : WADT_DC register
         \_SB.PC00.LPCB.H_EC.UTEC(0x01, \DCWA)
 
-        // 3. Program Timer mode to 0x10 : WADT_EXP_AC register
-        //\_SB.PC00.LPCB.H_EC.UTEC(0x10, \ACET)
+        // 3. Program Timer mode to 0x02 : WADT_EXP_AC register
+        \_SB.PC00.LPCB.H_EC.UTEC(0x02, \ACET)
 
-        // 4. Program Timer mode to 0x11 : WADT_EXP_DC register
-        //\_SB.PC00.LPCB.H_EC.UTEC(0x11, \DCET)
+        // 4. Program Timer mode to 0x03 : WADT_EXP_DC register
+        \_SB.PC00.LPCB.H_EC.UTEC(0x03, \DCET)
       }
     }
   }
@@ -349,6 +349,25 @@ Method(_WAK,1,Serialized)
 
     If(LEqual(\ECON,1))
     {
+      // Update Lid state after S3 or S4 resume
+      If(LOr(LEqual(Arg0,3), LEqual(Arg0,4)))  // If S3 or S4 Resume
+      {
+        Store(\_SB.PC00.LPCB.H_EC.ECRD(RefOf(\_SB.PC00.LPCB.H_EC.LSTE)), LIDS)
+
+        If(IGDS)
+        {
+            If (LEqual(LIDS, 0))
+            {
+              Store(0x80000000,\_SB.PC00.GFX0.CLID)
+            }
+            If (LEqual(LIDS, 1))
+            {
+              Store(0x80000003,\_SB.PC00.GFX0.CLID)
+            }
+        }
+        Notify(\_SB.PC00.LPCB.H_EC.LID0,0x80)
+      }
+
 //@todo: Waiting for DOCK offect data
 //      // Detect the change of Dock state
 //      If(LNotEqual(\_SB.PC00.LPCB.H_EC.ECRD(RefOf(\_SB.PC00.LPCB.H_EC.DOCK)), \DSTS))
@@ -378,6 +397,7 @@ Method(_WAK,1,Serialized)
           Store(\_SB.PC00.LPCB.H_EC.ECRD(RefOf(\_SB.PC00.LPCB.H_EC.VPWR)),PWRS)
           // Perform needed ACPI Notifications.
           SPNT()
+          BPNT()
         }
       }
       Else
@@ -387,6 +407,7 @@ Method(_WAK,1,Serialized)
           Store(\_SB.PC00.LPCB.H_EC.ECRD(RefOf(\_SB.PC00.LPCB.H_EC.RPWR)),PWRS)
           // Perform needed ACPI Notifications.
           SPNT()
+          BPNT()
         }
       }
     }
@@ -397,14 +418,12 @@ Method(_WAK,1,Serialized)
       //
       // If Using Control Method Power Button, notify PWRD device with 0x2
       //
-#if FixedPcdGetBool(PcdAdlNSupport) == 0
       If(LEqual(\_SB.PWRB.PBST, 0x1)) {
         If(PBSS) { //Power Button woke the system
           Notify(\_SB.PWRB, 0x02) // Send release notification to Power Button device 0x02
           Store(1, PBSS)
         }
       }
-#endif
     }
   }
 
@@ -431,6 +450,20 @@ Method(GETB,3,Serialized)
 
   Return(TBF3)        // Return Buffer.
 }
+//
+// Board Power Notification
+//
+Method (BPNT) {
+  // Update the Battery 1 and 2 Stored Capacity and
+  // Stored Status.  Battery 0 information is always accurrate.
+  If(LEqual(\ECON,1)) {
+    // Perform update to all Batteries in the System.
+    Notify(\_SB.PC00.LPCB.H_EC.BAT0,0x81)       // Eval BAT0 _BST.
+    Notify(\_SB.PC00.LPCB.H_EC.BAT1,0x81)       // Eval BAT1 _BST.
+    Notify(\_SB.PC00.LPCB.H_EC.BAT2,0x81)       // Eval BAT2 _BST.
+  }
+
+} // end of Method(BPNT)
 
 //
 // Memory window to the CTDP registers starting at MCHBAR+5000h.

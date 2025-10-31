@@ -76,6 +76,43 @@ Device(H_EC)  // Hitachi Embedded Controller
 
   // EC Mutex
   Mutex(ECMT, 0)
+  // ----------------------------------------------------------
+  // Disable ACPI Burst mode for byte length less than 2 bytes
+  // ----------------------------------------------------------
+  // _DSM - Device Specific Method
+  //
+  // Arg0 - _DSM GUID
+  // Arg1 - _DSM Revision
+  // Arg2 - Function Index
+  // Arg3 - Package with parameters
+  Method (_DSM, 4, Serialized, 0, {IntObj, BuffObj}, {BuffObj, IntObj, IntObj, PkgObj} )
+  {
+    If (LEqual (Arg0, ToUUID ("ecc0d5e9-3ee7-4f53-8c8f-766b839dddce"))) // UUID for ACPI Burst mode
+    {
+      Switch (ToInteger (Arg2)) {
+        //
+        // Function 0: Return supported functions based on the revision
+        //
+        Case (0)
+        {
+          Switch (ToInteger (Arg1)) {
+            Case (0)
+            {
+              Return (Buffer () {0x1})
+            } // revision 0: function 1 is supported
+          }
+          Return (Buffer () {0x0}) // revision 1+: No function yet supported
+        }
+
+        Case (1)
+        {
+          //
+          Return (Buffer () {0x2})
+        }
+      } // End switch
+    } // End UUID check for ACPI Burst Mode
+    Return (Buffer () {0})
+  }
 
   Method(_CRS,0, Serialized)
   {
@@ -503,6 +540,14 @@ Device(H_EC)  // Hitachi Embedded Controller
       }
     }
   }
+  // Virtual battery code
+  //
+  Include("Bat0Virt.asl")
+
+  // Real battery code
+  //
+  Include("Bat1Real.asl")
+  Include("Bat2Real.asl")
 
   // EREG method will be used in _REG (evaluated by OS without ECDT support) or _INI (for OS with ECDT support)
   Method(EREG)
@@ -566,6 +611,7 @@ Device(H_EC)  // Hitachi Embedded Controller
     // Perform needed ACPI Notifications.
 
     SPNT()
+    BPNT()
   }
 
   // The _REG Method is needed because communication with the EC
@@ -606,8 +652,8 @@ Device(H_EC)  // Hitachi Embedded Controller
   // Arg1: TimerValue
   Method(UTEC, 2)
   {
-     \_SB.PC00.LPCB.H_EC.ECWT(Arg0, RefOf(\_SB.PC00.LPCB.H_EC.WTMM))
      If(LNotEqual(Arg1,0xFFFFFFFF)) {
+        \_SB.PC00.LPCB.H_EC.ECWT(Arg0, RefOf(\_SB.PC00.LPCB.H_EC.WTMM))
         \_SB.PC00.LPCB.H_EC.ECWT(Arg1, RefOf(\_SB.PC00.LPCB.H_EC.WTMV))
         \_SB.PC00.LPCB.H_EC.ECMD(0x2F)
      }
@@ -647,6 +693,7 @@ Device(H_EC)  // Hitachi Embedded Controller
     }
 
     SPNT()
+    BPNT()
   }
 
   Method(_Q31)    // Real Battery AC Removal Event.
@@ -661,6 +708,7 @@ Device(H_EC)  // Hitachi Embedded Controller
     }
 
     SPNT()
+    BPNT()
   }
 
   Method(_Q32)    // Real Battery Capacity Change.
@@ -671,6 +719,7 @@ Device(H_EC)  // Hitachi Embedded Controller
     }
 
     SPNT()
+    BPNT()
   }
 
   Method(_Q33)    // Real Battery Insertion/Removal Event.
@@ -690,6 +739,7 @@ Device(H_EC)  // Hitachi Embedded Controller
     }
 
     SPNT()
+    BPNT()
   }
 
   Method(_Q34)    // PMAX changed by 250mw
@@ -731,6 +781,7 @@ Device(H_EC)  // Hitachi Embedded Controller
        Notify(\_SB.TPWR, 0x81) // notify Power participant
     }
     SPNT()
+    BPNT()
   }
 
   Method(_Q38)    //RBHF value is changed over a threshold, 5mOhm.
@@ -849,6 +900,28 @@ Device(H_EC)  // Hitachi Embedded Controller
   {
   }
 
+  Method(_Q51)    // Lid Switch Event.
+  {
+    // Update Lid NVS State.
+
+    Store(ECRD(RefOf(LSTE)),LIDS)
+
+    \_SB.PC00.GFX0.GLID(LIDS)
+
+    // If ETM is not disabled, notify IETM device
+    If (CondRefOf(\_TZ.ETMD))
+    {
+      If (LEqual(\_TZ.ETMD, 0))
+      {
+        If (CondRefOf(\_SB.IETM))
+        {
+          Notify(\_SB.IETM,0x83)
+        }
+      }
+    }
+    Notify(\_SB.PC00.LPCB.H_EC.LID0,0x80)
+  }
+
   //
   // SCI handler for USB device Attach/Detach notification
   //
@@ -941,7 +1014,7 @@ Device(H_EC)  // Hitachi Embedded Controller
         }
         If (And(4,DSEN))
         {
-          //BRTN(0x86)
+          BRTN(0x86)
         } Else {
           // Current brightness is a percentage number. This must be done if ALS is enabled,
           // as the driver will change the brightness based on ambient light.
@@ -966,7 +1039,7 @@ Device(H_EC)  // Hitachi Embedded Controller
         }
         If (And(4,DSEN))
         {
-          //BRTN(0x87)
+          BRTN(0x87)
         } Else {
           // Current brightness is a percentage number. This must be done if ALS is enabled,
           // as the driver will change the brightness based on ambient light.
@@ -1858,7 +1931,7 @@ Device(WDT0)  // WDT Device Resource Consumption
     Name(_HID,EISAID("PNP0C0D"))
     Method(_STA)
     {
-      If (LEqual(PFLV,FlavorMobile)){
+      If(LEqual(PFLV,FlavorMobile)) {
         Return(0x0F)
       }
       Return(0x00)
@@ -1958,15 +2031,26 @@ Scope(\_SB)
 
     Method(_STA, 0)
     {
-      If (LAnd(LEqual(ECON,1), PBST)){
+      If (PBST) { //      If (LAnd(LEqual(ECON,1), PBST))
         Return(0x0F)
       }
       Return(0x00)
     }
 
+    Method (PBDN, 0) {
+      Notify (\_SB.PWRB, 0x80) // Send press notification to Power Button device
+    }
+
+
     Method(PBUP, 0) {
-      If(UPPS) {
-        Notify(\_SB.PWRB, 0xC0) // Send release notification to Power Button device
+      If (LEqual(ECON,1)) {
+        If(UPPS) {
+          Notify(\_SB.PWRB, 0xC0) // Send release notification to Power Button device
+        }
+      }
+      Else
+      {
+        Notify (\_SB.PWRB, 0xC0) // Send release notification to Power Button device
       }
     }
 
@@ -2001,7 +2085,9 @@ Scope(\_SB)
               //
               // Place EC into mode where SCI is sent for both press and release of power button
               //
-              \_SB.PC00.LPCB.H_EC.ECMD(0x74)
+              If (LEqual(ECON,1)) {
+                \_SB.PC00.LPCB.H_EC.ECMD(0x74)
+              }
               Return(0x00)
             }
 
@@ -2016,10 +2102,16 @@ Scope(\_SB)
                   return(0x01) // Power button pressed
                 }
               } else {
-                If (\_SB.PC00.LPCB.PRBL) {
-                  return(0x00) // Power button not pressed
-                } else {
-                  return(0x01) // Power button pressed
+                If (LEqual(ECON,1)) {
+                  If (\_SB.PC00.LPCB.PRBL) {
+                    return(0x00) // Power button not pressed
+                  } else {
+                    return(0x01) // Power button pressed
+                  }
+                }
+                Else
+                {
+                  return (0x00) // Power button not pressed
                 }
               }
             }
@@ -2042,7 +2134,7 @@ Scope(\_SB)
       Notify(\_SB.HIDD,0xCE) // Notify HID driver that Power button is pressed.
     } Else {
       If(LEqual(\_SB.PWRB.PBST, 0x1)) { // Using Control Method Power Button
-        Notify(\_SB.PWRB, 0x80) // Send press notification to Power Button device
+        \_SB.PWRB.PBDN () // Send press notification to Power Button device if requested
         Store(1, \_SB.PWRB.PBLV) // Keep track of Power Button Level
       }
 
