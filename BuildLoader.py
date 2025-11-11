@@ -449,12 +449,12 @@ class Build(object):
             num_fit_entries     += 1
 
             # BIOS Module (IBB segment 2): full Stage1B
-            addr = self._board.STAGE1B_BASE
-            module_size = self._board.STAGE1B_SIZE >> 4
-            fit_entry = FIT_ENTRY.from_buffer(rom, fit_offset + (num_fit_entries+1)*16)
-            fit_entry.set_values(addr, module_size, 0x100, 0x7, 0)
-            print ('  Patching entry %d with 0x%08X:0x%08X - BIOS Module(Stage1B)' % (num_fit_entries, fit_entry.address, fit_entry.size))
-            num_fit_entries     += 1
+            # addr = self._board.STAGE1B_BASE
+            # module_size = self._board.STAGE1B_SIZE >> 4
+            # fit_entry = FIT_ENTRY.from_buffer(rom, fit_offset + (num_fit_entries+1)*16)
+            # fit_entry.set_values(addr, module_size, 0x100, 0x7, 0)
+            # print ('  Patching entry %d with 0x%08X:0x%08X - BIOS Module(Stage1B)' % (num_fit_entries, fit_entry.address, fit_entry.size))
+            # num_fit_entries     += 1
 
             # TXT POLICY
             if self._board.TXT_ENABLED == 1:

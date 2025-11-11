@@ -62,7 +62,7 @@ class Board(BaseBoard):
         self.HAVE_FIT_TABLE       = 1
         self.HAVE_VBT_BIN         = 1
         self.HAVE_VERIFIED_BOOT   = 1
-        self.HAVE_MEASURED_BOOT   = 1
+        self.HAVE_MEASURED_BOOT   = 0
         self.HAVE_ACPI_TABLE      = 1
         self.HAVE_PSD_TABLE       = 1
         self.ENABLE_VTD           = 1
