@@ -127,7 +127,7 @@ BoardInit (
     SerialPortInitialize ();
 
     // Enlarge the code cache region to cover full flash for non-BootGuard case only
-    if ((AsmReadMsr64(MSR_BOOT_GUARD_SACM_INFO) & B_BOOT_GUARD_SACM_INFO_NEM_ENABLED) == 0) {
+    //if ((AsmReadMsr64(MSR_BOOT_GUARD_SACM_INFO) & B_BOOT_GUARD_SACM_INFO_NEM_ENABLED) == 0) {
       // WHL FSP-T does not allow to enable full flash code cache due to cache size restriction.
       // Here, MTRR is patched to enable full flash region cache to avoid performance penalty.
       // However, the SBL code flow should ensure only limited flash regions will be accessed
@@ -142,7 +142,7 @@ BoardInit (
       }
       AsmWriteMsr64(MsrIdx, (SIZE_4GB - AdjLen) | CACHE_WRITEPROTECTED);
       AsmWriteMsr64(MsrIdx + 1, (MskLen - AdjLen) | B_CACHE_MTRR_VALID);
-    }
+    // }
     break;
   default:
     break;
