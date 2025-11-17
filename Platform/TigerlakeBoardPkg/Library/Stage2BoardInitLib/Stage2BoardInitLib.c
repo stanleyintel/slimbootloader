@@ -609,6 +609,32 @@ IgdOpRegionPlatformInit (
   }
 }
 
+VOID
+doit (
+  VOID
+  )
+{
+  UINT32                Length;
+  MEMORY_INFO_DATA_HOB *MemInfoDataHob;
+  VOID                 *FspHobList;
+
+  FspHobList = GetFspHobListPtr ();
+  if (FspHobList == NULL) {
+    DEBUG ((DEBUG_ERROR, "@@@ FspHobList not available\n"));
+    return;
+  }
+
+  MemInfoDataHob = (MEMORY_INFO_DATA_HOB *)GetGuidHobData (FspHobList, &Length, &gSiMemoryInfoDataGuid);
+
+  if (MemInfoDataHob == NULL) {
+    DEBUG ((DEBUG_ERROR, "@@@ MemInfoDataHob not available\n"));
+    return;
+  }
+
+  DEBUG((DEBUG_INFO, "@@@ MaximumMemoryClockSpeed: %x ConfiguredMemoryClockSpeed: %x\n",
+       MemInfoDataHob->MaximumMemoryClockSpeed, MemInfoDataHob->ConfiguredMemoryClockSpeed));
+}
+
 /**
   Do board specific init based on phase indication
 
@@ -756,6 +782,7 @@ BoardInit (
     }
     break;
   case PrePayloadLoading:
+    doit ();
     if (FeaturePcdGet (PcdSmbiosEnabled) && FeaturePcdGet (PcdEnableDts)) {
       AppendSmbiosBootDts ();
     }
