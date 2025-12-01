@@ -51,7 +51,7 @@ class Board(BaseBoard):
         self.ACPI_PM_TIMER_BASE   = 0x1808
 
         self.FLASH_LAYOUT_START   = 0x100000000 # 4GB Top
-        self.FLASH_BASE_SIZE      = 0x02000000  # 32MB
+        self.FLASH_BASE_SIZE      = 0x01000000  # 16MB
         self.FLASH_BASE_ADDRESS   = (self.FLASH_LAYOUT_START - self.FLASH_BASE_SIZE)
         self.LOADER_ACPI_RECLAIM_MEM_SIZE = 0x000090000
         self.HAVE_FIT_TABLE       = 1
@@ -126,7 +126,7 @@ class Board(BaseBoard):
             self.STAGE2_SIZE += 0x4000
 
         self.PAYLOAD_SIZE         = 0x00030000
-        self.EPAYLOAD_SIZE        = 0x00240000
+        self.EPAYLOAD_SIZE        = 0x00040000
 
         self.OS_LOADER_FD_SIZE    = 0x0005C000
         self.OS_LOADER_FD_NUMBLK  = self.OS_LOADER_FD_SIZE // self.FLASH_BLOCK_SIZE
@@ -249,7 +249,7 @@ class Board(BaseBoard):
         if self._SMBIOS_YAML_FILE:
             self.SIIPFW_SIZE += 0x1000
 
-        self.NON_REDUNDANT_SIZE   = 0x3BF000 + self.SIIPFW_SIZE + self.FUSA_SIZE
+        self.NON_REDUNDANT_SIZE   = 0x86000 + self.SIIPFW_SIZE + self.FUSA_SIZE
         self.NON_VOLATILE_SIZE    = 0x001000
         self.SLIMBOOTLOADER_SIZE  = (self.TOP_SWAP_SIZE + self.REDUNDANT_SIZE) * 2 + \
                                     self.NON_REDUNDANT_SIZE + self.NON_VOLATILE_SIZE

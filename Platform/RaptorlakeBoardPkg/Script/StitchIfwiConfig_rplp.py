@@ -234,6 +234,10 @@ def get_xml_change_list (platform, plt_params_list):
             ('./BuildSettings/BuildResults/FlashComponentsSizes',                    '64'),
     ])
 
+    xml_change_list.append ([
+        ('./BuildSettings/BuildResults/FlashComponentsSizes',                    '16'),
+    ])
+
     if 'lp4' in plt_params_list:
         xml_change_list.append ([
         ('./BuildSettings/HarnessGlobalData/SelectedRvp',                            'ADL-P LP4x (ADL-P + ADP-P)'),
