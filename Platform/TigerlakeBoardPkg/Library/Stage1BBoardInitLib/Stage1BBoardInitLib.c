@@ -486,7 +486,13 @@ UpdateFspConfig (
     Fspmcfg->TcssItbtPcie3En  = 0;
     Fspmcfg->DmiAspmCtrl      = 2;// ASPM configuration on the CPU side of the DMI/OPI Link
   }
-  Fspmcfg->MmioSize = 0x600; // works
+  /*
+  b0000000-cfffffff : PCI Bus 0000:00
+    (sip)
+    b1b00000-b1cfffff : PCI Bus 0000:04
+  c0000000-cfffffff : PCI MMCONFIG 0000 [bus 00-ff]
+  */
+  Fspmcfg->MmioSize = 0x500; // works when iGfx is disabled
   DEBUG((DEBUG_INFO, "@@@ new MmioSize = %2x MmioSizeAdjustment=%2x\n",
     Fspmcfg->MmioSize, Fspmcfg->MmioSizeAdjustment));
 }
