@@ -39,7 +39,7 @@ class Board(BaseBoard):
 
         self.PCI_EXPRESS_BASE     = 0xC0000000
         self.PCI_IO_BASE          = 0x00002000
-        self.PCI_MEM32_BASE       = 0xD0000000
+        self.PCI_MEM32_BASE       = 0xB0000000
         self.PCI_MEM64_BASE       = 0x1000000000
 
         if self.BUILD_ARCH == 'X64':
