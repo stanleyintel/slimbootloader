@@ -321,6 +321,7 @@ UpdateFspConfig (
   GfxCfgData = (GRAPHICS_CFG_DATA *)FindConfigDataByTag (CDATA_GRAPHICS_TAG);
   if (GfxCfgData != NULL) {
     DEBUG ((DEBUG_INFO, "Load Graphics Cfg Data\n"));
+    Fspmcfg->GttMmAdr                   = 0xD0000000;
     Fspmcfg->IgdDvmt50PreAlloc         = GfxCfgData->IgdDvmt50PreAlloc;
     Fspmcfg->ApertureSize              = GfxCfgData->ApertureSize;
     Fspmcfg->GttSize                   = GfxCfgData->GttSize;
@@ -487,10 +488,12 @@ UpdateFspConfig (
     Fspmcfg->DmiAspmCtrl      = 2;// ASPM configuration on the CPU side of the DMI/OPI Link
   }
   /*
-  b0000000-cfffffff : PCI Bus 0000:00
-    (sip)
-    b1b00000-b1cfffff : PCI Bus 0000:04
-  c0000000-cfffffff : PCI MMCONFIG 0000 [bus 00-ff]
+  PciRootBridgeInfoHob: Rev 0x1, Count 0x1
+  Bus(0x00-04)
+    BarType-1: Base 0x0000000000002000 Length 0x0000000000001000
+    BarType-3: Base 0x00000000D0000000 Length 0x0000000002500000
+    BarType-4: Base 0x00000000E0000000 Length 0x0000000010000000
+  GFX framebuffer WC is enabled @ 0xE0000000:0x10000000
   */
   Fspmcfg->MmioSize = 0x500; // works when iGfx is disabled
   DEBUG((DEBUG_INFO, "@@@ new MmioSize = %2x MmioSizeAdjustment=%2x\n",
