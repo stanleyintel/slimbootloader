@@ -353,6 +353,7 @@ UpdateFspConfig (
   GfxCfgData = (GRAPHICS_CFG_DATA *)FindConfigDataByTag (CDATA_GRAPHICS_TAG);
   if (GfxCfgData != NULL) {
     DEBUG ((DEBUG_INFO, "Load Graphics Cfg Data\n"));
+    Fspmcfg->GttMmAdr                   = 0xD0000000;
     Fspmcfg->IgdDvmt50PreAlloc         = GfxCfgData->IgdDvmt50PreAlloc;
     Fspmcfg->ApertureSize              = GfxCfgData->ApertureSize;
     Fspmcfg->GttSize                   = GfxCfgData->GttSize;
@@ -545,6 +546,17 @@ UpdateFspConfig (
     Fspmcfg->TcssItbtPcie3En  = 0;
     Fspmcfg->DmiAspmCtrl      = 2;// ASPM configuration on the CPU side of the DMI/OPI Link
   }
+  /*
+  SBL log:
+    Root Bridge 0:
+    HID: 0x0A0341D0, UID: 0x0, Segment: 0x0
+    Bus: 0x00-0x04
+    I/O: 0x2000-0x2FFF
+    Mem32: 0xB0000000-0xB24FFFFF
+    PMem32: 0xD0000000-0xDFFFFFFF
+  */
+  Fspmcfg->MmioSize = 0x500;
+  DEBUG((DEBUG_INFO, "@@@ new MmioSize = %2x\n", Fspmcfg->MmioSize));
 }
 
 /**
