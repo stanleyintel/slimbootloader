@@ -234,7 +234,7 @@ Name(BUF0,ResourceTemplate()
 //    ReadWrite,0x00,0xF00000,0xFFFFFF,0x00,0x100000,,,HOLE)
 
   //
-  // PCI Memory Region ( TOLUD - 0xDFFFFFFF )
+  // PCI Memory Region ( PCI_MEM32_BASE - ACPI_MMIO_BASE_ADDRESS )
   //
   DWordMemory(ResourceProducer,PosDecode,MinFixed,MaxFixed,NonCacheable,
     ReadWrite,0x00,0x00000000,0xDFFFFFFF,0x00,0xE0000000,,,PM01)

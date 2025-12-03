@@ -353,6 +353,7 @@ UpdateFspConfig (
   GfxCfgData = (GRAPHICS_CFG_DATA *)FindConfigDataByTag (CDATA_GRAPHICS_TAG);
   if (GfxCfgData != NULL) {
     DEBUG ((DEBUG_INFO, "Load Graphics Cfg Data\n"));
+    Fspmcfg->GttMmAdr                   = 0xD0000000;
     Fspmcfg->IgdDvmt50PreAlloc         = GfxCfgData->IgdDvmt50PreAlloc;
     Fspmcfg->ApertureSize              = GfxCfgData->ApertureSize;
     Fspmcfg->GttSize                   = GfxCfgData->GttSize;
@@ -545,6 +546,28 @@ UpdateFspConfig (
     Fspmcfg->TcssItbtPcie3En  = 0;
     Fspmcfg->DmiAspmCtrl      = 2;// ASPM configuration on the CPU side of the DMI/OPI Link
   }
+  /*
+   PciRootBridgeInfoHob: Rev 0x1, Count 0x1
+   Bus(0x00-04)
+     BarType-1: Base 0x0000000000002000 Length 0x0000000000001000
+     BarType-3: Base 0x00000000D0000000 Length 0x0000000002500000
+     BarType-4: Base 0x00000000E0000000 Length 0x0000000010000000
+   GFX framebuffer WC is enabled @ 0xE0000000:0x10000000
+
+   Linux /proc/iommu:
+     c0000000-cfffffff : PCI MMCONFIG 0000 [bus 00-ff]
+     d0000000-efffffff : PCI Bus 0000:00
+       d0000000-d0ffffff : cgroup.fy%i0000:00:07.2
+       (skip)
+       e0000000-efffffff : 0000:00:02.0
+       (skip)
+     1000000000-4fffffffff : PCI Bus 0000:00
+       1000000000-10dfffffff : 0000:00:02.0
+       10e0000000-10e6ffffff : 0000:00:02.0
+       10e7000000-10e71fffff : PCI Bus 0000:01
+  */
+  Fspmcfg->MmioSize = 0x400;
+  DEBUG((DEBUG_INFO, "@@@ new MmioSize = %2x\n", Fspmcfg->MmioSize));
 }
 
 /**
