@@ -1640,16 +1640,6 @@ PciProgramResources (
       Address = ResBase[Index];
 
       Address = ALIGN (Address, Root->PciBar[BarType - 1].Alignment);
-
-      if ((Index == 1) &&
-          (Address >= PcdGet64 (PcdPciExpressBaseAddress)) && (Address < (PcdGet64 (PcdPciExpressBaseAddress) + 0x10000000))) {
-        // skip the MMCONFIG region
-        DEBUG ((DEBUG_INFO, "@@@@ within MMCONFIG\n"));
-        ResBase[Index] = PcdGet64 (PcdPciExpressBaseAddress) + 0x10000000;
-        Address = ResBase[Index];
-        Address = ALIGN (Address, Root->PciBar[BarType - 1].Alignment);
-      }
-
       Root->PciBar[BarType - 1].BaseAddress = Address;
       if (Root->PciBar[BarType - 1].Length > 0) {
         ResBase[Index] += Root->PciBar[BarType - 1].Length;

@@ -13,7 +13,10 @@
 #define CPU_ICL                 0
 
 
-#define ACPI_MMIO_BASE_ADDRESS       0xC0000000
+/* Linux kernel log:
+     [    2.831210] pci_bus 0000:00: root bus resource [mem 0xd0000000-0xefffffff window]
+*/
+#define ACPI_MMIO_BASE_ADDRESS       0xF0000000
 #define ACPI_BASE_ADDRESS            0x1800
 
 #define SPI_TEMP_MEM_BASE_ADDRESS    0xF0000000
