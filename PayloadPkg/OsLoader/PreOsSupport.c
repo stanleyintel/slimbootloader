@@ -52,6 +52,14 @@ GetNormalOsInfo (
     UpdateLinuxBootParams (OsBootParam);
     PreOsParams->OsBootState.Esi     = (UINT32)(UINTN)OsBootParam;
     PreOsParams->OsBootState.Eip     = OsBootParam->Hdr.Code32Start;
+  } else if ((LoadedImage->Flags & LOADED_IMAGE_ELF) != 0) {
+    DEBUG((DEBUG_INFO, "@@@@ PreOs to load ELF\n"));
+    BootState = &LoadedImage->Image.MultiBoot.BootState;
+    PreOsParams->OsBootState.Eax     = BootState->Eax;
+    PreOsParams->OsBootState.Ebx     = BootState->Ebx;
+    PreOsParams->OsBootState.Esi     = BootState->Esi;
+    PreOsParams->OsBootState.Edi     = BootState->Edi;
+    PreOsParams->OsBootState.Eip     = BootState->EntryPoint;
   } else if ((LoadedImage->Flags & LOADED_IMAGE_MULTIBOOT) != 0) {
     BootState = &LoadedImage->Image.MultiBoot.BootState;
     PreOsParams->OsBootState.Eax     = BootState->Eax;

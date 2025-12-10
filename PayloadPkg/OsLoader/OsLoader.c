@@ -234,6 +234,7 @@ UpdateLoadedImage (
       TypeStr = "Multiboot";
     } else if (FeaturePcdGet (PcdMultiboot2SupportEnabled) && IsMultiboot2 (File[1].Addr)) {
       LoadedImage->Flags |= LOADED_IMAGE_MULTIBOOT2;
+      LoadedImage->Flags |= LOADED_IMAGE_ELF;
       TypeStr = "Multiboot-2";
     } else {
       DEBUG ((DEBUG_ERROR, "\"Multiboot\" container type used for a non-multiboot image!"));
