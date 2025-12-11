@@ -520,7 +520,7 @@ DumpMb2Header (CONST struct multiboot2_header *Mh)
     case MULTIBOOT2_HEADER_TAG_ADDRESS:               // 2
     {
       const struct multiboot2_header_tag_address *tag = (void *) ((char *) Mh + off);
-      DEBUG ((DEBUG_INFO, "header @%#x, load to %#x-%#x, bss-end @%#x",
+      DEBUG ((DEBUG_INFO, "header @%x, load to %x-%x, bss-end @%x",
               tag->header_addr,
               tag->load_addr,
               tag->load_end_addr,
@@ -530,7 +530,7 @@ DumpMb2Header (CONST struct multiboot2_header *Mh)
     case MULTIBOOT2_HEADER_TAG_ENTRY_ADDRESS:         // 3
     {
       const struct multiboot2_header_tag_entry_address *tag = (void *) ((char *) Mh + off);
-      DEBUG ((DEBUG_INFO, "entry point: %#x", tag->entry_addr));
+      DEBUG ((DEBUG_INFO, "entry point: %x", tag->entry_addr));
     }
     break;
     case MULTIBOOT2_HEADER_TAG_MODULE_ALIGN:          // 6
