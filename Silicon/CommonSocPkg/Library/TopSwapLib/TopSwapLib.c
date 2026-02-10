@@ -90,6 +90,36 @@ HideP2sbBar (
   MmioWrite8 (GetP2sbBase () + 0xE1, BIT0);
 }
 
+STATIC
+VOID
+doit (
+  IN BOOT_PARTITION  NextPartition
+  )
+{
+  UINTN  Address;
+  UINTN  Count;
+
+  DEBUG((DEBUG_INFO, "@@@ before doit\n"));
+
+  // if PcdIdenticalTopSwapsBuilt, Stage1A always loads Stage1B from the same address (e.g., 0xFFC9400)
+  Address = 0xFFC94000;
+  Count   = 0x200000;
+
+  __asm__ __volatile__ (
+    "1:\n\t"
+    "clflushopt (%0)\n\t"
+    "add $64, %0\n\t"
+    "loop 1b\n\t"
+    "sfence\n\t"
+    : "+r" (Address), "+c" (Count)
+    :
+    : "memory", "cc"
+    );
+
+  DEBUG((DEBUG_INFO, "@@@ after doit\n"));
+}
+
+
 /**
   Switch between the boot partitions.
 
@@ -125,6 +155,7 @@ SetBootPartition (
     HideP2sbBar ();
   }
 
+  doit (Partition);
   return EFI_SUCCESS;
 }
 

@@ -113,7 +113,7 @@ class Board(BaseBoard):
         self.STAGE1_DATA_SIZE     = 0x00014000
         self.FSP_M_STACK_TOP      = 0xFEF7FF00
         self.STAGE1B_SIZE         = 0x00200000
-        self.STAGE2_SIZE          = 0x000C2000
+        self.STAGE2_SIZE          = 0x000C4000
         self.STAGE2_FD_BASE       = 0x01000000
         self.STAGE2_FD_SIZE       = 0x001F0000
 
@@ -168,7 +168,7 @@ class Board(BaseBoard):
         # needs to be manually changed to Enabled and TopSwapOverride
         # flash setting needs to be manually changed to 4MB in stitch config
         self.ENABLE_SBL_RESILIENCY = 0
-        self.BUILD_IDENTICAL_TS    = 0
+        self.BUILD_IDENTICAL_TS    = 1
 
         if self.ENABLE_SBL_RESILIENCY:
             self.BUILD_IDENTICAL_TS    = 1

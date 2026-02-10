@@ -393,6 +393,8 @@ SecStartup2 (
     DEBUG ((DEBUG_INIT, "\n%a\n", mBootloaderName));
   }
 
+  DEBUG ((DEBUG_INIT, "@@@ BOOT: BP%d \n", GetCurrentBootPartition ()));
+
   if (Stage1aAsmParam->Status.CpuBist != 0) {
     CpuHalt ("CPU BIST failure!\n");
   }

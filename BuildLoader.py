@@ -1033,6 +1033,7 @@ class Build(object):
             os.path.join(self._fv_dir, 'STAGE1B_A.fd'))
 
         stage1b_path   = os.path.join(self._fv_dir, 'STAGE1B.fd')
+        stage1b_a_path = os.path.join(self._fv_dir, 'STAGE1B_A.fd')
         stage1b_b_path = os.path.join(self._fv_dir, 'STAGE1B_B.fd')
 
         if self._board.STAGE1B_XIP and not self._board.BUILD_IDENTICAL_TS:
@@ -1054,7 +1055,10 @@ class Build(object):
                 fo.close()
         else:
             shutil.copy(stage1b_path, stage1b_b_path)
-
+            # if @@@ BOOT: BP1 -> use stage1b_a_path; otherwise, use stage1b_b_path
+            with open(stage1b_b_path, 'r+b') as f:
+                file_size = os.path.getsize(stage1b_b_path)
+                f.write(b'\xff' * file_size)
 
     def create_bootloader_image (self, layout_name):
 

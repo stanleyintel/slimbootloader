@@ -250,6 +250,13 @@ FwuTopSwapSetting (
   UINT32            RsvdSize;
   FW_UPDATE_STATUS  *FwUpdStatus;
 
+  volatile UINT8 __attribute__((unused)) Dummy;
+  UINT8 *FuncStart = (UINT8 *)ResetSystem;
+  for (UINT8 *p = FuncStart; p < (FuncStart + 0x200); p += 32) { // 32-byte stride for cache line
+    Dummy = *p;
+  }
+  DEBUG((DEBUG_INFO, "@@@@ FwuTopSwapSetting after Dummy\n"));
+
   Status = GetComponentInfoByPartition (FLASH_MAP_SIG_BLRESERVED, FALSE, &RsvdBase, &RsvdSize);
   if (EFI_ERROR (Status)) {
     DEBUG((DEBUG_ERROR, "Could not get component information for bootloader reserved region\n"));
@@ -274,6 +281,7 @@ FwuTopSwapSetting (
         if (IsTopSwapTriggered ()) {
           ClearTopSwapTrigger ();
           SetBootPartition (BackupPartition);
+          DEBUG((DEBUG_INFO, "@@@@ FwuTopSwapSetting call ResetSystem\n"));
           ResetSystem (EfiResetCold);
         }
       } else {
@@ -297,6 +305,7 @@ FwuTopSwapSetting (
         if (IsTopSwapTriggered ()) {
           ClearTopSwapTrigger ();
           SetBootPartition (PrimaryPartition);
+          DEBUG((DEBUG_INFO, "@@@@ FwuTopSwapSetting call ResetSystem\n"));
           ResetSystem (EfiResetCold);
         }
       } else {
